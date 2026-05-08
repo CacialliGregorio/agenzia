@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
 import { LogIn } from 'lucide-react'
 
@@ -33,10 +33,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      {/* Top Bar */}
+      <div className="bg-gray-900 text-white text-sm py-2">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+          <div className="flex gap-6">
+            <a href="tel:03723397" className="hover:text-gray-300">📞 0372 32397</a>
+            <a href="mailto:agenzia@ilmondoimmobiliare.eu" className="hover:text-gray-300">✉️ agenzia@ilmondoimmobiliare.eu</a>
+          </div>
+          <div>
+            <button
+              onClick={() => navigate('/')}
+              className="hover:text-gray-300 flex items-center gap-1"
+            >
+              ← Torna alla Home
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Login Form Container */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
         <div className="flex justify-center mb-6">
-          <LogIn className="w-8 h-8 text-blue-600" />
+          <img src="/logo.jpeg" alt="Agenzia Logo" className="h-16 w-auto" />
         </div>
         
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
@@ -97,6 +117,7 @@ export default function LoginPage() {
           <br />
           password: <code className="bg-gray-100 px-2 py-1 rounded text-xs">password123</code>
         </p>
+      </div>
       </div>
     </div>
   )

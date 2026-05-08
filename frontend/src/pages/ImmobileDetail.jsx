@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
-import { ArrowLeft, MapPin, DollarSign, Ruler, Home as HomeIcon, Droplet, Zap } from 'lucide-react'
+import { ArrowLeft, MapPin, DollarSign, Ruler, Home as HomeIcon, Droplet, Zap, LogIn } from 'lucide-react'
 
 export default function ImmobileDetail() {
   const { id } = useParams()
@@ -39,9 +39,38 @@ export default function ImmobileDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Top Bar */}
+      <div className="bg-gray-900 text-white text-sm py-2">
+        <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
+          <div className="flex gap-6">
+            <a href="tel:03723397" className="hover:text-gray-300">📞 0372 32397</a>
+            <a href="mailto:agenzia@ilmondoimmobiliare.eu" className="hover:text-gray-300">✉️ agenzia@ilmondoimmobiliare.eu</a>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate('/login')}
+              className="hover:text-gray-300 flex items-center gap-1"
+            >
+              <LogIn className="w-4 h-4" />
+              Area Dipendenti
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="mb-4">
+            <img src="/logo.jpeg" alt="Agenzia Logo" className="h-12 w-auto" />
+          </div>
+          <nav className="flex gap-6 mb-4">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
+            <Link to="/immobili" className="text-gray-700 hover:text-blue-600 font-medium">Immobili</Link>
+            <Link to="/contatti" className="text-gray-700 hover:text-blue-600 font-medium">Contatti</Link>
+            <Link to="/servizi" className="text-gray-700 hover:text-blue-600 font-medium">Servizi</Link>
+            <Link to="/agenzia" className="text-gray-700 hover:text-blue-600 font-medium">Agenzia</Link>
+          </nav>
           <button
             onClick={() => navigate('/')}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"

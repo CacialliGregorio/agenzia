@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { LogIn, Briefcase } from 'lucide-react'
+import { LogIn, Briefcase, Facebook, Instagram } from 'lucide-react'
 
 export default function Servizi() {
   const token = localStorage.getItem('token')
@@ -9,7 +9,14 @@ export default function Servizi() {
       {/* Top Bar */}
       <div className="bg-gray-900 text-white text-sm py-2">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-          <div className="flex gap-6">
+          <div className="flex gap-4 items-center">
+            <a href="https://www.facebook.com/ILMONDOIMMOBILIARECR" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-blue-100 transition">
+              <Facebook className="w-5 h-5 text-blue-600" />
+            </a>
+            <a href="https://www.instagram.com/ilmondoimmobiliare/" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-pink-100 transition">
+              <Instagram className="w-5 h-5 text-pink-500" />
+            </a>
+            <span className="mx-2 h-5 w-px bg-gray-400 inline-block"></span>
             <a href="tel:03723397" className="hover:text-gray-300">📞 0372 32397</a>
             <a href="mailto:agenzia@ilmondoimmobiliare.eu" className="hover:text-gray-300">✉️ agenzia@ilmondoimmobiliare.eu</a>
           </div>
@@ -69,4 +76,3 @@ export default function Servizi() {
     </div>
   )
 }
-

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
-import { Search, MapPin, DollarSign, Home as HomeIcon, LogIn, Plus } from 'lucide-react'
+import { Search, MapPin, DollarSign, Home as HomeIcon, LogIn, Plus, Facebook, Instagram } from 'lucide-react'
+import SearchForm from '../components/SearchForm'
 
 export default function Home() {
   const [immobili, setImmobili] = useState([])
@@ -45,26 +46,33 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <HomeIcon className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-800">Agenzia Immobiliare</h1>
+      {/* Top Bar */}
+      <div className="bg-gray-900 text-white text-sm py-2">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+          <div className="flex gap-4 items-center">
+            <a href="https://www.facebook.com/ILMONDOIMMOBILIARECR" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-blue-100 transition">
+              <Facebook className="w-5 h-5 text-blue-600" />
+            </a>
+            <a href="https://www.instagram.com/ilmondoimmobiliare/" target="_blank" rel="noopener noreferrer" className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-pink-100 transition">
+              <Instagram className="w-5 h-5 text-pink-500" />
+            </a>
+            <span className="mx-2 h-5 w-px bg-gray-400 inline-block"></span>
+            <a href="tel:03723397" className="hover:text-gray-300">📞 0372 32397</a>
+            <a href="mailto:agenzia@ilmondoimmobiliare.eu" className="hover:text-gray-300">✉️ agenzia@ilmondoimmobiliare.eu</a>
           </div>
           <div className="flex gap-4">
             {token ? (
               <Link
                 to="/dashboard"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                className="hover:text-gray-300 flex items-center gap-1"
               >
                 <Plus className="w-4 h-4" />
-                Nuovi Annunci
+                Dashboard
               </Link>
             ) : (
               <button
                 onClick={() => navigate('/login')}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                className="hover:text-gray-300 flex items-center gap-1"
               >
                 <LogIn className="w-4 h-4" />
                 Area Dipendenti
@@ -72,59 +80,26 @@ export default function Home() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <img src="/logo.jpeg" alt="Agenzia Logo" className="h-12 w-auto" />
+          </div>
+          <nav className="flex gap-6">
+            <Link to="/" className="text-blue-600 font-medium">Home</Link>
+            <Link to="/immobili" className="text-gray-700 hover:text-blue-600 font-medium">Immobili</Link>
+            <Link to="/contatti" className="text-gray-700 hover:text-blue-600 font-medium">Contatti</Link>
+            <Link to="/servizi" className="text-gray-700 hover:text-blue-600 font-medium">Servizi</Link>
+            <Link to="/agenzia" className="text-gray-700 hover:text-blue-600 font-medium">Agenzia</Link>
+          </nav>
+        </div>
       </header>
 
       {/* Hero + Search */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-2">Trova la Tua Casa Ideale</h2>
-          <p className="text-blue-100 mb-8">Migliaia di proprietà disponibili</p>
-
-          <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-lg p-6 text-gray-800">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder="Città"
-                value={searchParams.citta}
-                onChange={(e) => setSearchParams({ ...searchParams, citta: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-              <select
-                value={searchParams.tipo}
-                onChange={(e) => setSearchParams({ ...searchParams, tipo: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Tipo</option>
-                <option value="CASA">Casa</option>
-                <option value="APPARTAMENTO">Appartamento</option>
-                <option value="VILLA">Villa</option>
-                <option value="TERRENO">Terreno</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Prezzo Min"
-                value={searchParams.prezzoMin}
-                onChange={(e) => setSearchParams({ ...searchParams, prezzoMin: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="number"
-                placeholder="Prezzo Max"
-                value={searchParams.prezzoMax}
-                onChange={(e) => setSearchParams({ ...searchParams, prezzoMax: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                Cerca
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
+      <SearchForm />
 
       {/* Annunci Grid */}
       <section className="max-w-7xl mx-auto px-4 py-12">
@@ -168,7 +143,32 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      <section className="bg-green-500 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Il Mondo Immobiliare</h2>
+              <p className="text-lg leading-8">
+                L'agenzia “Il Mondo Immobiliare” offre alla propria clientela un insieme di
+                servizi integrati in grado di soddisfare tutte le esigenze di chi compra,
+                vende, affitta o ricerca un immobile.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-6">F.I.M.A.A.</h2>
+              <img
+                src="/fimaa.jpg"
+                alt="F.I.M.A.A."
+                className="mx-auto max-h-32 w-auto"
+              />
+            </div>
+
+            <div></div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
-
