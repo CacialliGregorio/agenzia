@@ -1,0 +1,72 @@
+import { Link } from 'react-router-dom'
+import { LogIn, Briefcase } from 'lucide-react'
+
+export default function Servizi() {
+  const token = localStorage.getItem('token')
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Bar */}
+      <div className="bg-gray-900 text-white text-sm py-2">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+          <div className="flex gap-6">
+            <a href="tel:03723397" className="hover:text-gray-300">📞 0372 32397</a>
+            <a href="mailto:agenzia@ilmondoimmobiliare.eu" className="hover:text-gray-300">✉️ agenzia@ilmondoimmobiliare.eu</a>
+          </div>
+          <div className="flex gap-4">
+            {token ? (
+              <Link to="/dashboard" className="hover:text-gray-300">Dashboard</Link>
+            ) : (
+              <Link to="/login" className="hover:text-gray-300 flex items-center gap-1">
+                <LogIn className="w-4 h-4" />
+                Area Dipendenti
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <img src="/logo.jpeg" alt="Agenzia Logo" className="h-12 w-auto" />
+          </div>
+          <nav className="flex gap-6">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
+            <Link to="/immobili" className="text-gray-700 hover:text-blue-600 font-medium">Immobili</Link>
+            <Link to="/contatti" className="text-gray-700 hover:text-blue-600 font-medium">Contatti</Link>
+            <Link to="/servizi" className="text-blue-600 font-medium">Servizi</Link>
+            <Link to="/agenzia" className="text-gray-700 hover:text-blue-600 font-medium">Agenzia</Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold text-gray-800 mb-6">I Nostri Servizi</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+            <Briefcase className="w-8 h-8 text-blue-600 mb-3" />
+            <h3 className="text-lg font-bold mb-2">Vendita Immobili</h3>
+            <p className="text-gray-600">Assistenza completa nella compravendita di proprietà</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+            <Briefcase className="w-8 h-8 text-blue-600 mb-3" />
+            <h3 className="text-lg font-bold mb-2">Affitti</h3>
+            <p className="text-gray-600">Gestione e ricerca di soluzioni abitative in affitto</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+            <Briefcase className="w-8 h-8 text-blue-600 mb-3" />
+            <h3 className="text-lg font-bold mb-2">Consulenza</h3>
+            <p className="text-gray-600">Consulenza specializzata nel settore immobiliare</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
