@@ -6,6 +6,7 @@ import ImmobileForm from '../components/ImmobileForm'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+
   const [immobili, setImmobili] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -23,11 +24,14 @@ export default function Dashboard() {
     setLoading(true)
 
     try {
-      const response = await axiosInstance.get('/immobili', {
-        params: { page: 0, size: 100 },
+      const response = await axiosInstance.get('/admin/immobili', {
+        params: {
+          page: 0,
+          size: 100,
+        },
       })
 
-      setImmobili(response.data.content)
+      setImmobili(response.data.content || [])
     } catch (error) {
       console.error('Errore nel caricamento annunci:', error)
     } finally {
@@ -42,12 +46,39 @@ export default function Dashboard() {
     navigate('/')
   }
 
+  const handleCreate = () => {
+    setEditingId(null)
+    setEditingData(null)
+    setShowForm(true)
+  }
+
+  const handleEdit = async (id) => {
+    try {
+      const response = await axiosInstance.get(`/immobili/${id}`)
+
+      setEditingId(id)
+      setEditingData(response.data)
+      setShowForm(true)
+
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        })
+      }, 100)
+    } catch (error) {
+      console.error('Errore nel caricamento immobile da modificare:', error)
+      alert("Errore nel caricamento dell'annuncio da modificare")
+    }
+  }
+
   const handleDelete = async (id) => {
     if (window.confirm('Sei sicuro di voler eliminare questo annuncio?')) {
       try {
         await axiosInstance.delete(`/immobili/${id}`)
         setImmobili(immobili.filter((i) => i.id !== id))
       } catch (error) {
+        console.error("Errore nell'eliminazione:", error)
         alert("Errore nell'eliminazione")
       }
     }
@@ -83,6 +114,7 @@ export default function Dashboard() {
         }
 
         await fetchMyImmobili()
+
         setEditingId(null)
         setEditingData(null)
         setShowForm(false)
@@ -95,6 +127,9 @@ export default function Dashboard() {
         }
 
         await fetchMyImmobili()
+
+        setEditingId(null)
+        setEditingData(null)
         setShowForm(false)
       }
     } catch (error) {
@@ -103,6 +138,44 @@ export default function Dashboard() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleCancelForm = () => {
+    setShowForm(false)
+    setEditingId(null)
+    setEditingData(null)
+  }
+
+  const getStatoClassName = (stato) => {
+    if (stato === 'DISPONIBILE') {
+      return 'bg-green-100 text-green-800'
+    }
+
+    if (stato === 'VENDUTO') {
+      return 'bg-red-100 text-red-800'
+    }
+
+    if (stato === 'AFFITTATO') {
+      return 'bg-yellow-100 text-yellow-800'
+    }
+
+    return 'bg-gray-100 text-gray-800'
+  }
+
+  const getStatoLabel = (stato) => {
+    if (stato === 'DISPONIBILE') {
+      return 'DISPONIBILE'
+    }
+
+    if (stato === 'VENDUTO') {
+      return 'VENDUTO'
+    }
+
+    if (stato === 'AFFITTATO') {
+      return 'AFFITTATO'
+    }
+
+    return stato || '-'
   }
 
   return (
@@ -205,13 +278,10 @@ export default function Dashboard() {
                 )}
 
                 <ImmobileForm
+                    key={editingId || 'nuovo-annuncio'}
                     onSubmit={handleFormSubmit}
                     initialData={editingData}
-                    onCancel={() => {
-                      setShowForm(false)
-                      setEditingId(null)
-                      setEditingData(null)
-                    }}
+                    onCancel={handleCancelForm}
                 />
               </div>
           )}
@@ -219,7 +289,7 @@ export default function Dashboard() {
           {/* Create Button */}
           {!showForm && (
               <button
-                  onClick={() => setShowForm(true)}
+                  onClick={handleCreate}
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 mb-6 font-semibold"
               >
                 <Plus className="w-5 h-5" />
@@ -230,9 +300,14 @@ export default function Dashboard() {
           {/* Annunci List */}
           <div className="bg-white rounded-lg shadow-lg">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 I Miei Annunci ({immobili.length})
               </h2>
+
+              <p className="text-sm text-gray-500 mb-4">
+                In questa tabella vedi anche gli immobili venduti o affittati.
+                Nel sito pubblico vengono mostrati solo quelli disponibili.
+              </p>
 
               {loading ? (
                   <p className="text-gray-600">Caricamento...</p>
@@ -280,24 +355,26 @@ export default function Dashboard() {
                             </td>
 
                             <td className="px-4 py-3">
-                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
-                            {immobile.stato}
+                          <span
+                              className={`${getStatoClassName(
+                                  immobile.stato
+                              )} px-2 py-1 rounded text-sm font-semibold`}
+                          >
+                            {getStatoLabel(immobile.stato)}
                           </span>
                             </td>
 
                             <td className="px-4 py-3 text-center flex justify-center gap-2">
                               <button
-                                  onClick={() => {
-                                    setEditingId(immobile.id)
-                                    setEditingData(immobile)
-                                    setShowForm(true)
-                                  }}
+                                  type="button"
+                                  onClick={() => handleEdit(immobile.id)}
                                   className="p-2 text-blue-600 hover:bg-blue-50 rounded"
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
 
                               <button
+                                  type="button"
                                   onClick={() => handleDelete(immobile.id)}
                                   className="p-2 text-red-600 hover:bg-red-50 rounded"
                               >

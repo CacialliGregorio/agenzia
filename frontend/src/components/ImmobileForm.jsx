@@ -1,28 +1,58 @@
-import { useState } from 'react'
-import { UploadCloud, X, Image as ImageIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  UploadCloud,
+  X,
+  Image as ImageIcon,
+  ArrowLeft,
+  ArrowRight,
+} from 'lucide-react'
+import axiosInstance from '../api/axiosInstance'
+
+const BACKEND_URL = 'http://localhost:8080'
+
+const formVuoto = {
+  titolo: '',
+  descrizione: '',
+  prezzo: '',
+  citta: '',
+  provincia: '',
+  via: '',
+  numeroCivico: '',
+  tipo: 'APPARTAMENTO',
+  stato: 'DISPONIBILE',
+  superficieMq: '',
+  numeroLocali: '',
+  numeroBagni: '',
+  piano: '',
+  ascensore: false,
+  riscaldamento: '',
+}
 
 export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
-  const [formData, setFormData] = useState(
-      initialData || {
-        titolo: '',
-        descrizione: '',
-        prezzo: '',
-        citta: '',
-        provincia: '',
-        via: '',
-        numeroCivico: '',
-        tipo: 'APPARTAMENTO',
-        superficieMq: '',
-        numeroLocali: '',
-        numeroBagni: '',
-        piano: '',
-        ascensore: false,
-        riscaldamento: '',
-      }
-  )
-
+  const [formData, setFormData] = useState(initialData || formVuoto)
   const [fotoFiles, setFotoFiles] = useState([])
+  const [fotoEsistenti, setFotoEsistenti] = useState(initialData?.fotoUrl || [])
   const [isDragging, setIsDragging] = useState(false)
+  const [eliminazioneFoto, setEliminazioneFoto] = useState(false)
+  const [salvataggioOrdine, setSalvataggioOrdine] = useState(false)
+
+  useEffect(() => {
+    setFormData(initialData || formVuoto)
+    setFotoEsistenti(initialData?.fotoUrl || [])
+    setFotoFiles([])
+  }, [initialData])
+
+  const getFotoUrl = (foto) => {
+    if (!foto) {
+      return null
+    }
+
+    if (foto.startsWith('http')) {
+      return foto
+    }
+
+    return `${BACKEND_URL}${foto}`
+  }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -43,6 +73,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
 
   const handleFileChange = (e) => {
     aggiungiFoto(e.target.files)
+    e.target.value = ''
   }
 
   const handleDrop = (e) => {
@@ -51,10 +82,80 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
     aggiungiFoto(e.dataTransfer.files)
   }
 
-  const rimuoviFoto = (indexDaRimuovere) => {
+  const rimuoviFotoNuova = (indexDaRimuovere) => {
     setFotoFiles((prev) =>
         prev.filter((_, index) => index !== indexDaRimuovere)
     )
+  }
+
+  const eliminaFotoEsistente = async (fotoDaEliminare) => {
+    if (!initialData?.id) {
+      return
+    }
+
+    const conferma = window.confirm(
+        'Vuoi eliminare definitivamente questa foto?'
+    )
+
+    if (!conferma) {
+      return
+    }
+
+    setEliminazioneFoto(true)
+
+    try {
+      await axiosInstance.delete(`/immobili/${initialData.id}/foto`, {
+        params: {
+          percorso: fotoDaEliminare,
+        },
+      })
+
+      setFotoEsistenti((prev) =>
+          prev.filter((foto) => foto !== fotoDaEliminare)
+      )
+    } catch (error) {
+      console.error('Errore eliminazione foto:', error)
+      alert("Errore durante l'eliminazione della foto")
+    } finally {
+      setEliminazioneFoto(false)
+    }
+  }
+
+  const salvaOrdineFoto = async (nuovoOrdine) => {
+    if (!initialData?.id) {
+      return
+    }
+
+    setSalvataggioOrdine(true)
+
+    try {
+      await axiosInstance.put(`/immobili/${initialData.id}/foto/ordine`, {
+        fotoUrl: nuovoOrdine,
+      })
+    } catch (error) {
+      console.error('Errore aggiornamento ordine foto:', error)
+      alert("Errore durante l'aggiornamento dell'ordine delle foto")
+    } finally {
+      setSalvataggioOrdine(false)
+    }
+  }
+
+  const spostaFotoEsistente = async (index, direzione) => {
+    const nuovoIndice = index + direzione
+
+    if (nuovoIndice < 0 || nuovoIndice >= fotoEsistenti.length) {
+      return
+    }
+
+    const nuovoOrdine = [...fotoEsistenti]
+
+    const fotoTemporanea = nuovoOrdine[index]
+    nuovoOrdine[index] = nuovoOrdine[nuovoIndice]
+    nuovoOrdine[nuovoIndice] = fotoTemporanea
+
+    setFotoEsistenti(nuovoOrdine)
+
+    await salvaOrdineFoto(nuovoOrdine)
   }
 
   const handleSubmit = (e) => {
@@ -62,11 +163,15 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
 
     const datiImmobile = {
       ...formData,
+      stato: formData.stato || 'DISPONIBILE',
       prezzo: parseFloat(formData.prezzo),
       superficieMq: parseFloat(formData.superficieMq) || null,
       numeroLocali: parseInt(formData.numeroLocali) || null,
       numeroBagni: parseInt(formData.numeroBagni) || null,
-      piano: parseInt(formData.piano) || null,
+      piano:
+          formData.piano === '' || formData.piano === null
+              ? null
+              : parseInt(formData.piano),
     }
 
     onSubmit(datiImmobile, fotoFiles)
@@ -83,7 +188,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="text"
                 name="titolo"
-                value={formData.titolo}
+                value={formData.titolo || ''}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -98,7 +203,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="number"
                 name="prezzo"
-                value={formData.prezzo}
+                value={formData.prezzo || ''}
                 onChange={handleChange}
                 required
                 step="0.01"
@@ -114,7 +219,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="text"
                 name="citta"
-                value={formData.citta}
+                value={formData.citta || ''}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -129,7 +234,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="text"
                 name="provincia"
-                value={formData.provincia}
+                value={formData.provincia || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
@@ -143,7 +248,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="text"
                 name="via"
-                value={formData.via}
+                value={formData.via || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
@@ -157,7 +262,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="text"
                 name="numeroCivico"
-                value={formData.numeroCivico}
+                value={formData.numeroCivico || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
@@ -170,7 +275,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             </label>
             <select
                 name="tipo"
-                value={formData.tipo}
+                value={formData.tipo || 'APPARTAMENTO'}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
@@ -180,7 +285,29 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
               <option value="TERRENO">Terreno</option>
               <option value="GARAGE">Garage</option>
               <option value="UFFICIO">Ufficio</option>
+              <option value="MANSARDA">Mansarda</option>
+              <option value="NEGOZIO">Negozio</option>
             </select>
+          </div>
+
+          {/* Stato */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Stato annuncio *
+            </label>
+            <select
+                name="stato"
+                value={formData.stato || 'DISPONIBILE'}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="DISPONIBILE">Disponibile</option>
+              <option value="VENDUTO">Venduto</option>
+              <option value="AFFITTATO">Affittato</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Solo gli immobili disponibili vengono mostrati nel sito pubblico.
+            </p>
           </div>
 
           {/* Superficie */}
@@ -191,7 +318,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="number"
                 name="superficieMq"
-                value={formData.superficieMq}
+                value={formData.superficieMq || ''}
                 onChange={handleChange}
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -206,7 +333,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="number"
                 name="numeroLocali"
-                value={formData.numeroLocali}
+                value={formData.numeroLocali || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
@@ -220,7 +347,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="number"
                 name="numeroBagni"
-                value={formData.numeroBagni}
+                value={formData.numeroBagni || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
@@ -234,7 +361,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="number"
                 name="piano"
-                value={formData.piano}
+                value={formData.piano || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
@@ -248,7 +375,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             <input
                 type="text"
                 name="riscaldamento"
-                value={formData.riscaldamento}
+                value={formData.riscaldamento || ''}
                 onChange={handleChange}
                 placeholder="Es: Autonomo, Centralizzato"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -261,10 +388,11 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
                 type="checkbox"
                 name="ascensore"
                 id="ascensore"
-                checked={formData.ascensore}
+                checked={formData.ascensore || false}
                 onChange={handleChange}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
             />
+
             <label
                 htmlFor="ascensore"
                 className="ml-2 text-sm font-medium text-gray-700"
@@ -279,19 +407,111 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Descrizione
           </label>
+
           <textarea
               name="descrizione"
-              value={formData.descrizione}
+              value={formData.descrizione || ''}
               onChange={handleChange}
               rows="4"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {/* Upload immagini */}
+        {/* Foto già salvate */}
+        {fotoEsistenti.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Foto già caricate
+              </label>
+
+              <p className="text-sm text-gray-500 mb-3">
+                La prima foto mostrata sarà usata come immagine di copertina. Usa le frecce per cambiare ordine.
+              </p>
+
+              {eliminazioneFoto && (
+                  <p className="text-sm text-blue-600 mb-3">
+                    Eliminazione foto in corso...
+                  </p>
+              )}
+
+              {salvataggioOrdine && (
+                  <p className="text-sm text-blue-600 mb-3">
+                    Salvataggio ordine foto in corso...
+                  </p>
+              )}
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {fotoEsistenti.map((foto, index) => (
+                    <div
+                        key={`${foto}-${index}`}
+                        className="relative border rounded-lg overflow-hidden bg-white"
+                    >
+                      {index === 0 && (
+                          <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded z-10">
+                            Copertina
+                          </div>
+                      )}
+
+                      <img
+                          src={getFotoUrl(foto)}
+                          alt={`Foto salvata ${index + 1}`}
+                          className="w-full h-28 object-cover"
+                      />
+
+                      <button
+                          type="button"
+                          disabled={eliminazioneFoto || salvataggioOrdine}
+                          onClick={() => eliminaFotoEsistente(foto)}
+                          className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 disabled:bg-gray-400"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+
+                      <div className="px-2 py-2 text-xs text-gray-600">
+                        <div className="mb-2">
+                          Foto {index + 1}
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2">
+                          <button
+                              type="button"
+                              disabled={
+                                  index === 0 ||
+                                  eliminazioneFoto ||
+                                  salvataggioOrdine
+                              }
+                              onClick={() => spostaFotoEsistente(index, -1)}
+                              className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded"
+                              title="Sposta a sinistra"
+                          >
+                            <ArrowLeft className="w-4 h-4" />
+                          </button>
+
+                          <button
+                              type="button"
+                              disabled={
+                                  index === fotoEsistenti.length - 1 ||
+                                  eliminazioneFoto ||
+                                  salvataggioOrdine
+                              }
+                              onClick={() => spostaFotoEsistente(index, 1)}
+                              className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded"
+                              title="Sposta a destra"
+                          >
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                ))}
+              </div>
+            </div>
+        )}
+
+        {/* Upload nuove immagini */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Foto immobile
+            Aggiungi nuove foto
           </label>
 
           <div
@@ -344,7 +564,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
 
                       <button
                           type="button"
-                          onClick={() => rimuoviFoto(index)}
+                          onClick={() => rimuoviFotoNuova(index)}
                           className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
                       >
                         <X className="w-4 h-4" />

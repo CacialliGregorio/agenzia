@@ -1,7 +1,11 @@
 spring:
   application:
     name: Agenzia Immobiliare
-  
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 100MB
   # JPA/Hibernate Configuration
   jpa:
     hibernate:

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping
@@ -36,6 +37,54 @@ public class FotoController {
             );
 
             return ResponseEntity.ok(fotoUrls);
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/immobili/{immobileId}/foto")
+    public ResponseEntity<Void> eliminaFoto(
+            @PathVariable Long immobileId,
+            @RequestParam String percorso,
+            Authentication authentication) {
+
+        try {
+            Long userId = (Long) authentication.getDetails();
+
+            fotoService.eliminaFoto(
+                    immobileId,
+                    percorso,
+                    userId
+            );
+
+            return ResponseEntity.noContent().build();
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/immobili/{immobileId}/foto/ordine")
+    public ResponseEntity<Void> aggiornaOrdineFoto(
+            @PathVariable Long immobileId,
+            @RequestBody Map<String, List<String>> request,
+            Authentication authentication) {
+
+        try {
+            Long userId = (Long) authentication.getDetails();
+
+            List<String> percorsiOrdinati = request.get("fotoUrl");
+
+            fotoService.aggiornaOrdineFoto(
+                    immobileId,
+                    percorsiOrdinati,
+                    userId
+            );
+
+            return ResponseEntity.noContent().build();
 
         } catch (RuntimeException e) {
             e.printStackTrace();

@@ -21,43 +21,68 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+
+                        // Login pubblico
                         .requestMatchers("/auth/**").permitAll()
+
+                        // Lettura pubblica immobili
                         .requestMatchers(HttpMethod.GET, "/immobili/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/immobili/cerca").permitAll()
+
+                        // Lettura pubblica immagini caricate
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/uploads/**").permitAll()
+
+                        // Creazione/modifica/eliminazione immobili solo con login
                         .requestMatchers("/immobili/**").authenticated()
+
+                        // Tutto il resto richiede login
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:5173"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS",
+                "PATCH"
+        ));
+
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }
-

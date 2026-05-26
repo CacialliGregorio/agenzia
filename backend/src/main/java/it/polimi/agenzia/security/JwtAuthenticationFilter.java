@@ -16,39 +16,52 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    
+
     @Autowired
     private JwtUtil jwtUtil;
-    
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
-        
+
+        String path = request.getRequestURI();
+
+        // Le immagini caricate devono essere pubbliche.
+        // Quindi, se la richiesta riguarda /uploads/, non controlliamo il JWT.
+        if (path.contains("/uploads/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String jwt = extractTokenFromRequest(request);
-            
+
             if (jwt != null && jwtUtil.validateToken(jwt)) {
                 String email = jwtUtil.extractEmail(jwt);
                 Long userId = jwtUtil.extractUserId(jwt);
-                
-                UsernamePasswordAuthenticationToken auth = 
-                    new UsernamePasswordAuthenticationToken(email, null, null);
+
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(email, null, null);
+
                 auth.setDetails(userId);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
         }
-        
+
         filterChain.doFilter(request, response);
     }
-    
+
     private String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
+
         return null;
     }
 }
-

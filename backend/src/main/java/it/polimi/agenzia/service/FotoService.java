@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,7 +74,11 @@ public class FotoService {
 
                 Path destinazione = cartellaImmobile.resolve(nomeFile);
 
-                Files.copy(file.getInputStream(), destinazione, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(
+                        file.getInputStream(),
+                        destinazione,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
 
                 String percorsoPubblico = "/api/uploads/immobili/" + immobileId + "/" + nomeFile;
 
@@ -94,6 +99,82 @@ public class FotoService {
 
         } catch (IOException e) {
             throw new RuntimeException("Errore durante il salvataggio delle immagini");
+        }
+    }
+
+    public void eliminaFoto(Long immobileId, String percorso, Long userId) {
+        Immobile immobile = immobileRepository.findById(immobileId)
+                .orElseThrow(() -> new RuntimeException("Immobile non trovato"));
+
+        if (!immobile.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Non autorizzato a eliminare foto per questo immobile");
+        }
+
+        List<Foto> fotoImmobile = fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+
+        Foto fotoDaEliminare = fotoImmobile.stream()
+                .filter(foto -> foto.getPercorso().equals(percorso))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Foto non trovata"));
+
+        try {
+            Path filePath = uploadRoot
+                    .resolve(immobileId.toString())
+                    .resolve(fotoDaEliminare.getNomeFile())
+                    .normalize();
+
+            Files.deleteIfExists(filePath);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Errore durante l'eliminazione del file immagine");
+        }
+
+        fotoRepository.delete(fotoDaEliminare);
+
+        riordinaFoto(immobileId);
+    }
+
+    public void aggiornaOrdineFoto(Long immobileId, List<String> percorsiOrdinati, Long userId) {
+        Immobile immobile = immobileRepository.findById(immobileId)
+                .orElseThrow(() -> new RuntimeException("Immobile non trovato"));
+
+        if (!immobile.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Non autorizzato a riordinare foto per questo immobile");
+        }
+
+        if (percorsiOrdinati == null || percorsiOrdinati.isEmpty()) {
+            throw new RuntimeException("Lista foto vuota");
+        }
+
+        List<Foto> fotoImmobile = fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+
+        for (int i = 0; i < percorsiOrdinati.size(); i++) {
+            String percorso = percorsiOrdinati.get(i);
+
+            Foto fotoDaAggiornare = fotoImmobile.stream()
+                    .filter(foto -> foto.getPercorso().equals(percorso))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Foto non trovata: " + percorso));
+
+            fotoDaAggiornare.setOrdinamento(i);
+            fotoRepository.save(fotoDaAggiornare);
+        }
+    }
+
+    private void riordinaFoto(Long immobileId) {
+        List<Foto> fotoRimanenti = fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+
+        fotoRimanenti.sort(
+                Comparator.comparing(
+                        Foto::getOrdinamento,
+                        Comparator.nullsLast(Integer::compareTo)
+                )
+        );
+
+        for (int i = 0; i < fotoRimanenti.size(); i++) {
+            Foto foto = fotoRimanenti.get(i);
+            foto.setOrdinamento(i);
+            fotoRepository.save(foto);
         }
     }
 

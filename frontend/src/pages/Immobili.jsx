@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { LogIn, Facebook, Instagram, Home as HomeIcon } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import {
+  LogIn,
+  Facebook,
+  Instagram,
+  Home as HomeIcon,
+} from 'lucide-react'
 import SearchForm from '../components/SearchForm'
 import axiosInstance from '../api/axiosInstance'
 
+const BACKEND_URL = 'http://localhost:8080'
+
 export default function Immobili() {
   const token = localStorage.getItem('token')
+  const [urlSearchParams] = useSearchParams()
 
   const [immobili, setImmobili] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,8 +21,47 @@ export default function Immobili() {
   const [ricercaAttiva, setRicercaAttiva] = useState(false)
 
   useEffect(() => {
-    caricaImmobili()
-  }, [])
+    const filtriDaUrl = {
+      localita: urlSearchParams.get('localita') || '',
+      ubicazione: urlSearchParams.get('ubicazione') || '',
+      destinazione: urlSearchParams.get('destinazione') || '',
+      tipo: urlSearchParams.get('tipo') || '',
+      camereLettoMin: urlSearchParams.get('camereLettoMin') || '',
+      bagniMin: urlSearchParams.get('bagniMin') || '',
+      prezzoMin: Number(urlSearchParams.get('prezzoMin') || 0),
+      prezzoMax: Number(urlSearchParams.get('prezzoMax') || 2000000),
+    }
+
+    const ciSonoFiltri =
+        filtriDaUrl.localita ||
+        filtriDaUrl.ubicazione ||
+        filtriDaUrl.destinazione ||
+        filtriDaUrl.tipo ||
+        filtriDaUrl.camereLettoMin ||
+        filtriDaUrl.bagniMin ||
+        filtriDaUrl.prezzoMin > 0 ||
+        filtriDaUrl.prezzoMax < 2000000
+
+    if (ciSonoFiltri) {
+      cercaImmobili(filtriDaUrl)
+    } else {
+      caricaImmobili()
+    }
+  }, [urlSearchParams])
+
+  const getFotoUrl = (immobile) => {
+    const primaFoto = immobile?.fotoUrl?.[0]
+
+    if (!primaFoto) {
+      return null
+    }
+
+    if (primaFoto.startsWith('http')) {
+      return primaFoto
+    }
+
+    return `${BACKEND_URL}${primaFoto}`
+  }
 
   const caricaImmobili = async () => {
     try {
@@ -67,15 +114,23 @@ export default function Immobili() {
           const tipoCercato = filtri.tipo.toLowerCase()
 
           if (tipoCercato === 'bilocale') {
-            return immobile.numeroLocali === 2
+            return Number(immobile.numeroLocali || 0) === 2
           }
 
           if (tipoCercato === 'attico') {
-            return immobile.piano >= 4
+            return Number(immobile.piano || 0) >= 4
           }
 
           if (tipoCercato === 'casa indipendente') {
             return tipoImmobile === 'casa'
+          }
+
+          if (tipoCercato === 'box') {
+            return tipoImmobile === 'garage'
+          }
+
+          if (tipoCercato === 'magazzino/capannone') {
+            return tipoImmobile === 'terreno' || tipoImmobile === 'magazzino'
           }
 
           return tipoImmobile.includes(tipoCercato)
@@ -85,7 +140,8 @@ export default function Immobili() {
       if (filtri.camereLettoMin) {
         risultati = risultati.filter(
             (immobile) =>
-                Number(immobile.numeroLocali || 0) >= Number(filtri.camereLettoMin)
+                Number(immobile.numeroLocali || 0) >=
+                Number(filtri.camereLettoMin)
         )
       }
 
@@ -248,61 +304,75 @@ export default function Immobili() {
 
           {!loading && !errore && immobili.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {immobili.map((immobile) => (
-                    <div
-                        key={immobile.id}
-                        className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
-                    >
-                      <div className="h-48 bg-gray-200 flex items-center justify-center">
-                        <HomeIcon className="w-16 h-16 text-gray-400" />
-                      </div>
+                {immobili.map((immobile) => {
+                  const fotoCopertina = getFotoUrl(immobile)
 
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          {immobile.titolo}
-                        </h3>
-
-                        <p className="text-gray-600 mb-4 line-clamp-2">
-                          {immobile.descrizione}
-                        </p>
-
-                        <div className="space-y-1 text-sm text-gray-600 mb-4">
-                          <p>
-                            <strong>Città:</strong> {immobile.citta}
-                          </p>
-
-                          <p>
-                            <strong>Tipo:</strong> {immobile.tipo}
-                          </p>
-
-                          <p>
-                            <strong>Locali:</strong> {immobile.numeroLocali}
-                          </p>
-
-                          <p>
-                            <strong>Bagni:</strong> {immobile.numeroBagni}
-                          </p>
-
-                          <p>
-                            <strong>Superficie:</strong> {immobile.superficieMq} m²
-                          </p>
+                  return (
+                      <div
+                          key={immobile.id}
+                          className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
+                      >
+                        <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                          {fotoCopertina ? (
+                              <img
+                                  src={fotoCopertina}
+                                  alt={immobile.titolo}
+                                  className="w-full h-full object-cover"
+                              />
+                          ) : (
+                              <HomeIcon className="w-16 h-16 text-gray-400" />
+                          )}
                         </div>
 
-                        <div className="flex justify-between items-center gap-4">
-                          <p className="text-2xl font-bold text-green-600">
-                            € {Number(immobile.prezzo).toLocaleString('it-IT')}
+                        <div className="p-6">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            {immobile.titolo}
+                          </h3>
+
+                          <p className="text-gray-600 mb-4 line-clamp-2">
+                            {immobile.descrizione}
                           </p>
 
-                          <Link
-                              to={`/immobili/${immobile.id}`}
-                              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 rounded-lg transition whitespace-nowrap"
-                          >
-                            Dettagli
-                          </Link>
+                          <div className="space-y-1 text-sm text-gray-600 mb-4">
+                            <p>
+                              <strong>Città:</strong> {immobile.citta}
+                            </p>
+
+                            <p>
+                              <strong>Tipo:</strong> {immobile.tipo}
+                            </p>
+
+                            <p>
+                              <strong>Locali:</strong>{' '}
+                              {immobile.numeroLocali || '-'}
+                            </p>
+
+                            <p>
+                              <strong>Bagni:</strong> {immobile.numeroBagni || '-'}
+                            </p>
+
+                            <p>
+                              <strong>Superficie:</strong>{' '}
+                              {immobile.superficieMq || '-'} m²
+                            </p>
+                          </div>
+
+                          <div className="flex justify-between items-center gap-4">
+                            <p className="text-2xl font-bold text-green-600">
+                              € {Number(immobile.prezzo).toLocaleString('it-IT')}
+                            </p>
+
+                            <Link
+                                to={`/immobili/${immobile.id}`}
+                                className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 rounded-lg transition whitespace-nowrap"
+                            >
+                              Dettagli
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                ))}
+                  )
+                })}
               </div>
           )}
         </div>
