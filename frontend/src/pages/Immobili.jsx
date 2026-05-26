@@ -10,6 +10,7 @@ export default function Immobili() {
   const [immobili, setImmobili] = useState([])
   const [loading, setLoading] = useState(true)
   const [errore, setErrore] = useState('')
+  const [ricercaAttiva, setRicercaAttiva] = useState(false)
 
   useEffect(() => {
     caricaImmobili()
@@ -19,11 +20,12 @@ export default function Immobili() {
     try {
       setLoading(true)
       setErrore('')
+      setRicercaAttiva(false)
 
       const response = await axiosInstance.get('/immobili', {
         params: {
           page: 0,
-          size: 12,
+          size: 1000,
         },
       })
 
@@ -31,6 +33,82 @@ export default function Immobili() {
     } catch (error) {
       console.error('Errore caricamento immobili:', error)
       setErrore('Errore durante il caricamento degli immobili.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const cercaImmobili = async (filtri) => {
+    try {
+      setLoading(true)
+      setErrore('')
+      setRicercaAttiva(true)
+
+      const response = await axiosInstance.get('/immobili', {
+        params: {
+          page: 0,
+          size: 1000,
+        },
+      })
+
+      let risultati = response.data.content || []
+
+      if (filtri.localita) {
+        risultati = risultati.filter((immobile) =>
+            immobile.citta
+                ?.toLowerCase()
+                .includes(filtri.localita.toLowerCase())
+        )
+      }
+
+      if (filtri.tipo) {
+        risultati = risultati.filter((immobile) => {
+          const tipoImmobile = immobile.tipo?.toLowerCase() || ''
+          const tipoCercato = filtri.tipo.toLowerCase()
+
+          if (tipoCercato === 'bilocale') {
+            return immobile.numeroLocali === 2
+          }
+
+          if (tipoCercato === 'attico') {
+            return immobile.piano >= 4
+          }
+
+          if (tipoCercato === 'casa indipendente') {
+            return tipoImmobile === 'casa'
+          }
+
+          return tipoImmobile.includes(tipoCercato)
+        })
+      }
+
+      if (filtri.camereLettoMin) {
+        risultati = risultati.filter(
+            (immobile) =>
+                Number(immobile.numeroLocali || 0) >= Number(filtri.camereLettoMin)
+        )
+      }
+
+      if (filtri.bagniMin) {
+        risultati = risultati.filter(
+            (immobile) =>
+                Number(immobile.numeroBagni || 0) >= Number(filtri.bagniMin)
+        )
+      }
+
+      risultati = risultati.filter((immobile) => {
+        const prezzo = Number(immobile.prezzo || 0)
+
+        return (
+            prezzo >= Number(filtri.prezzoMin || 0) &&
+            prezzo <= Number(filtri.prezzoMax || 2000000)
+        )
+      })
+
+      setImmobili(risultati)
+    } catch (error) {
+      console.error('Errore ricerca immobili:', error)
+      setErrore('Errore durante la ricerca degli immobili.')
     } finally {
       setLoading(false)
     }
@@ -136,13 +214,25 @@ export default function Immobili() {
         </header>
 
         {/* Form ricerca */}
-        <SearchForm />
+        <SearchForm onSearch={cercaImmobili} />
 
         {/* Risultati immobili */}
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">
-            Immobili disponibili
-          </h2>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {ricercaAttiva ? 'Risultati ricerca' : 'Immobili disponibili'}
+            </h2>
+
+            {ricercaAttiva && (
+                <button
+                    type="button"
+                    onClick={caricaImmobili}
+                    className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg font-semibold transition"
+                >
+                  Mostra tutti
+                </button>
+            )}
+          </div>
 
           {loading && (
               <p className="text-gray-600 text-lg">Caricamento immobili...</p>
@@ -151,7 +241,9 @@ export default function Immobili() {
           {errore && <p className="text-red-600 text-lg">{errore}</p>}
 
           {!loading && !errore && immobili.length === 0 && (
-              <p className="text-gray-600 text-lg">Nessun immobile disponibile.</p>
+              <p className="text-gray-600 text-lg">
+                Nessun immobile trovato con questi filtri.
+              </p>
           )}
 
           {!loading && !errore && immobili.length > 0 && (

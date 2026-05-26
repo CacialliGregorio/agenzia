@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import it.polimi.agenzia.repository.FotoRepository;
 
 import java.math.BigDecimal;
 
@@ -19,10 +20,13 @@ public class ImmobileService {
     
     @Autowired
     private ImmobileRepository immobileRepository;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
+    @Autowired
+    private FotoRepository fotoRepository;
+
     public Page<ImmobileDTO> getImmobiliDisponibili(Pageable pageable) {
         return immobileRepository.findByStato(Immobile.Stato.DISPONIBILE, pageable)
                 .map(this::convertToDTO);
@@ -108,7 +112,7 @@ public class ImmobileService {
         
         immobileRepository.delete(immobile);
     }
-    
+
     private ImmobileDTO convertToDTO(Immobile immobile) {
         return ImmobileDTO.builder()
                 .id(immobile.getId())
@@ -128,6 +132,12 @@ public class ImmobileService {
                 .riscaldamento(immobile.getRiscaldamento())
                 .stato(immobile.getStato().toString())
                 .userId(immobile.getUser().getId())
+                .fotoUrl(
+                        fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobile.getId())
+                                .stream()
+                                .map(foto -> foto.getPercorso())
+                                .toList()
+                )
                 .creatoIl(immobile.getCreatoIl())
                 .aggiornatoIl(immobile.getAggiornatoIl())
                 .build();
