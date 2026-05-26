@@ -13,7 +13,7 @@ public interface ImmobileRepository extends JpaRepository<Immobile, Long> {
     
     Page<Immobile> findByStato(Immobile.Stato stato, Pageable pageable);
     
-    Page<Immobile> findByCittaContainingIgnaseCase(String citta, Pageable pageable);
+    Page<Immobile> findByCittaContainingIgnoreCase(String citta, Pageable pageable);
     
     @Query("SELECT i FROM Immobile i WHERE " +
            "(:citta IS NULL OR LOWER(i.citta) LIKE LOWER(CONCAT('%', :citta, '%'))) AND " +

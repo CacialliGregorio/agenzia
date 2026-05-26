@@ -3,6 +3,17 @@ import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
 import { LogIn } from 'lucide-react'
 
+/**
+ * CREDENZIALI DI TEST PER L'AREA DIPENDENTI:
+ * Email: admin@agenzia.it
+ * Password: password123
+ * 
+ * Altre credenziali disponibili:
+ * - dipendente1@agenzia.it / password123
+ * - dipendente2@agenzia.it / password123
+ * 
+ * Se le credenziali sono sbagliate, il form cambierà aspetto mostrando un errore evidente
+ */
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -81,9 +92,13 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@agenzia.it"
+              placeholder="admin@agenzia.it"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                error 
+                  ? 'border-red-500 focus:ring-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
             />
           </div>
 
@@ -95,9 +110,13 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Usa: password123"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                error 
+                  ? 'border-red-500 focus:ring-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
             />
           </div>
 

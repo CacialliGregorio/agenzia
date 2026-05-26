@@ -9,31 +9,38 @@ import ImmobileDetail from './pages/ImmobileDetail'
 import Dashboard from './pages/Dashboard'
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token')
-  return token ? children : <Navigate to="/login" replace />
+    const token = localStorage.getItem('token')
+    return token ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/immobili" element={<Immobili />} />
-        <Route path="/contatti" element={<Contatti />} />
-        <Route path="/servizi" element={<Servizi />} />
-        <Route path="/agenzia" element={<Agenzia />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/annuncio/:id" element={<ImmobileDetail />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
-  )
-}
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Home />} />
 
+                <Route path="/immobili" element={<Immobili />} />
+
+                {/* Pagina dettaglio immobile */}
+                <Route path="/immobili/:id" element={<ImmobileDetail />} />
+
+                <Route path="/contatti" element={<Contatti />} />
+                <Route path="/servizi" element={<Servizi />} />
+                <Route path="/agenzia" element={<Agenzia />} />
+                <Route path="/login" element={<LoginPage />} />
+
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Se una rotta non esiste, torna alla home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </Router>
+    )
+}

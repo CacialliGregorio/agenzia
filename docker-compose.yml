@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agenzia_user"]
+      test: ["CMD-SHELL", "pg_isready -U agenzia_user -d agenzia_immobiliare"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,7 +29,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/agenzia_immobiliare
       SPRING_DATASOURCE_USERNAME: agenzia_user
       SPRING_DATASOURCE_PASSWORD: agenzia_pass123
-      JWT_SECRET: your-super-secret-key-change-this-in-production
+      JWT_SECRET: mondo-immobiliare-local-development-secret-key-2026-super-lunga-sicura-per-hs512-token-jwt
       JWT_EXPIRATION: 86400000
     ports:
       - "8080:8080"
