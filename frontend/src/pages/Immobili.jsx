@@ -5,9 +5,14 @@ import {
   Facebook,
   Instagram,
   Home as HomeIcon,
+  Phone,
+  Mail,
+  Smartphone,
+  MapPinned,
 } from 'lucide-react'
 import SearchForm from '../components/SearchForm'
 import axiosInstance from '../api/axiosInstance'
+import WhatsAppTopLink from '../components/WhatsAppTopLink'
 
 const BACKEND_URL = 'http://localhost:8080'
 
@@ -176,6 +181,8 @@ export default function Immobili() {
         <div className="bg-gray-900 text-white text-sm py-2">
           <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <div className="flex gap-4 items-center">
+              <WhatsAppTopLink />
+
               <a
                   href="https://www.facebook.com/ILMONDOIMMOBILIARECR"
                   target="_blank"
@@ -343,8 +350,7 @@ export default function Immobili() {
                             </p>
 
                             <p>
-                              <strong>Locali:</strong>{' '}
-                              {immobile.numeroLocali || '-'}
+                              <strong>Locali:</strong> {immobile.numeroLocali || '-'}
                             </p>
 
                             <p>
@@ -376,6 +382,137 @@ export default function Immobili() {
               </div>
           )}
         </div>
+
+        {/* Footer verde con contatti */}
+        <section className="bg-green-500 text-white mt-12">
+          <div className="max-w-7xl mx-auto px-4 py-14">
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+              <div>
+                <h2 className="text-2xl font-bold mb-6">
+                  Il Mondo Immobiliare
+                </h2>
+
+                <p className="text-lg leading-8">
+                  L'agenzia “Il Mondo Immobiliare” offre alla propria clientela un
+                  insieme di servizi integrati in grado di soddisfare tutte le
+                  esigenze di chi compra, vende, affitta o ricerca un immobile.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <h2 className="text-2xl font-bold mb-6">F.I.M.A.A.</h2>
+
+                <img
+                    src="/fimaa.jpg"
+                    alt="F.I.M.A.A."
+                    className="mx-auto max-h-32 w-auto bg-white p-2 rounded"
+                />
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold mb-6">Contatti</h2>
+
+                <div className="space-y-3">
+                  <a
+                      href="https://www.google.com/maps/search/?api=1&query=Viale+Trento+e+Trieste+120+Cremona"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
+                  >
+                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <MapPinned className="w-5 h-5 text-white" />
+                  </span>
+
+                    <span className="font-semibold">
+                    Viale Trento e Trieste, 120
+                  </span>
+                  </a>
+
+                  <a
+                      href="tel:+39037232397"
+                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
+                  >
+                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <Phone className="w-5 h-5 text-white" />
+                  </span>
+
+                    <span className="font-semibold">(+39) 0372 32397</span>
+                  </a>
+
+                  <a
+                      href="tel:+393294011384"
+                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
+                  >
+                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <Smartphone className="w-5 h-5 text-white" />
+                  </span>
+
+                    <span className="font-semibold">(+39) 329 4011384</span>
+                  </a>
+
+                  <a
+                      href="mailto:agenzia@ilmondoimmobiliare.eu"
+                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
+                  >
+                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <Mail className="w-5 h-5 text-white" />
+                  </span>
+
+                    <span className="font-semibold break-all">
+                    agenzia@ilmondoimmobiliare.eu
+                  </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Barra finale come sito originale */}
+        <footer className="bg-green-900 text-white">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+              <div className="w-full md:w-1/2">
+                <p className="text-sm text-white/90 mb-2">
+                  © 2017 Il Mondo Immobiliare. All Rights Reserved. Partita IVA:
+                  01585350190
+                </p>
+
+                <div className="flex flex-col items-start gap-1">
+                  <button
+                      type="button"
+                      onClick={() => {}}
+                      className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
+                  >
+                  <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                    i
+                  </span>
+                    Privacy Policy
+                  </button>
+
+                  <button
+                      type="button"
+                      onClick={() => {}}
+                      className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
+                  >
+                  <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                    i
+                  </span>
+                    Cookie Policy
+                  </button>
+                </div>
+              </div>
+
+              <div className="w-full md:w-1/2 flex justify-center md:justify-end">
+                <img
+                    src="/logo.jpeg"
+                    alt="Il Mondo Immobiliare"
+                    className="h-20 w-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
   )
 }

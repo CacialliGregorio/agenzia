@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
 import { LogOut, Plus, Edit, Trash2 } from 'lucide-react'
 import ImmobileForm from '../components/ImmobileForm'
-
+import WhatsAppTopLink from '../components/WhatsAppTopLink'
 export default function Dashboard() {
   const navigate = useNavigate()
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
 import { LogIn } from 'lucide-react'
-
+import WhatsAppTopLink from '../components/WhatsAppTopLink'
 /**
  * CREDENZIALI DI TEST PER L'AREA DIPENDENTI:
  * Email: admin@agenzia.it
