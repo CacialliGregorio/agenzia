@@ -38,10 +38,17 @@ public class Immobile {
 
     @Column(name = "numero_civico")
     private String numeroCivico;
+    @Column(name = "codice_riferimento")
+    private String codiceRiferimento;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String tipo;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoImmobile tipo;
+    private Ubicazione ubicazione;
+
+    @Enumerated(EnumType.STRING)
+    private Destinazione destinazione;
 
     @Column(name = "superficie_mq")
     private Double superficieMq;
@@ -52,11 +59,49 @@ public class Immobile {
     @Column(name = "numero_bagni")
     private Integer numeroBagni;
 
+    @Column(name = "camere_da_letto")
+    private Integer camereDaLetto;
+
     private Integer piano;
 
     private Boolean ascensore;
+    private Boolean garage;
+    @Column(name = "pannelli_solari")
+    private Boolean pannelliSolari;
+
+    private Boolean terrazza;
+
+    @Column(name = "riscaldamento_pavimento")
+    private Boolean riscaldamentoPavimento;
+
+    private Boolean giardino;
+
+    private Boolean piscina;
+
+    @Column(name = "impianto_allarme")
+    private Boolean impiantoAllarme;
+
+    @Column(name = "aria_condizionata")
+    private Boolean ariaCondizionata;
+
+    @Column(name = "vista_panoramica")
+    private Boolean vistaPanoramica;
+
+    private Boolean ripostiglio;
+
+    private Boolean termoautonomo;
+
+    @Column(name = "porta_blindata")
+    private Boolean portaBlindata;
+
+    private Boolean cappotto;
+
+    @Column(name = "cortile_privato")
+    private Boolean cortilePrivato;
 
     private String riscaldamento;
+    @Column(name = "note_private", columnDefinition = "TEXT")
+    private String notePrivate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -86,10 +131,44 @@ public class Immobile {
         aggiornatoIl = LocalDateTime.now();
     }
 
-    public enum TipoImmobile {
-        CASA, APPARTAMENTO, TERRENO, GARAGE, VILLA, MANSARDA, NEGOZIO, UFFICIO
+    public enum Ubicazione {
+        CENTRALE,
+        FUORI_CITTA,
+        PERIFERIA,
+        SEMI_CENTRALE
     }
 
+    public enum Destinazione {
+        AFFITTO,
+        AFFITTO_SEMI_ARREDATO,
+        VENDITA
+    }
+
+    public enum TipoImmobile {
+        CASA,
+        APPARTAMENTO,
+        TERRENO,
+        GARAGE,
+        VILLA,
+        VILLETTA,
+        MANSARDA,
+        NEGOZIO,
+        UFFICIO,
+
+        ATTICO,
+        ATTIVITA_COMMERCIALE,
+        BILOCALE,
+        BOX,
+        CASA_INDIPENDENTE,
+        CASCINA,
+        FABBRICATO,
+        LABORATORIO,
+        LOFT,
+        MAGAZZINO_CAPANNONE,
+        MONOLOCALE,
+        RUSTICO,
+        STUDIO
+    }
     public enum Stato {
         DISPONIBILE, VENDUTO, AFFITTATO
     }

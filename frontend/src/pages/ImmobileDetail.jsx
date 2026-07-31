@@ -13,8 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import WhatsAppTopLink from '../components/WhatsAppTopLink'
-const BACKEND_URL = 'http://localhost:8080'
+
+const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 export default function ImmobileDetail() {
   const { id } = useParams()
@@ -53,9 +54,11 @@ export default function ImmobileDetail() {
   }
 
   const fotoDisponibili = immobile?.fotoUrl || []
-  const fotoPrincipale = fotoDisponibili.length > 0
-      ? getFotoUrl(fotoDisponibili[fotoSelezionata])
-      : null
+
+  const fotoPrincipale =
+      fotoDisponibili.length > 0
+          ? getFotoUrl(fotoDisponibili[fotoSelezionata])
+          : null
 
   const vaiFotoPrecedente = () => {
     setFotoSelezionata((prev) =>
@@ -67,6 +70,107 @@ export default function ImmobileDetail() {
     setFotoSelezionata((prev) =>
         prev === fotoDisponibili.length - 1 ? 0 : prev + 1
     )
+  }
+
+  const caratteristiche = [
+    { key: 'ascensore', label: 'Ascensore' },
+    { key: 'garage', label: 'Garage' },
+    { key: 'pannelliSolari', label: 'Pannelli Solari' },
+    { key: 'terrazza', label: 'Terrazza' },
+    { key: 'riscaldamentoPavimento', label: 'Riscaldamento a Pavimento' },
+    { key: 'giardino', label: 'Giardino' },
+    { key: 'piscina', label: 'Piscina' },
+    { key: 'impiantoAllarme', label: 'Impianto Allarme' },
+    { key: 'ariaCondizionata', label: 'Aria Condizionata' },
+    { key: 'vistaPanoramica', label: 'Vista Panoramica' },
+    { key: 'ripostiglio', label: 'Ripostiglio' },
+    { key: 'termoautonomo', label: 'Termoautonomo' },
+    { key: 'portaBlindata', label: 'Porta Blindata' },
+    { key: 'cappotto', label: 'Cappotto' },
+    { key: 'cortilePrivato', label: 'Cortile Privato' },
+  ].filter((caratteristica) => Boolean(immobile?.[caratteristica.key]))
+
+  const indirizzoCompleto = [
+    immobile?.via,
+    immobile?.numeroCivico,
+    immobile?.citta,
+    immobile?.provincia,
+    'Italia',
+  ]
+      .filter(Boolean)
+      .join(', ')
+
+  const mapsEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(
+      indirizzoCompleto
+  )}&output=embed`
+
+  const vaiAllaMappa = () => {
+    const sezioneMappa = document.getElementById('mappa-immobile')
+
+    if (sezioneMappa) {
+      sezioneMappa.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }
+  }
+
+  const formatEnum = (valore) => {
+    if (!valore) {
+      return 'Non specificato'
+    }
+
+    const labels = {
+      VILLA: 'Villa',
+      VILLETTA: 'Villetta',
+      APPARTAMENTO: 'Appartamento',
+      ATTICO: 'Attico',
+      ATTIVITA_COMMERCIALE: 'Attività Commerciale',
+      BILOCALE: 'Bilocale',
+      BOX: 'Box',
+      CASA_INDIPENDENTE: 'Casa Indipendente',
+      CASCINA: 'Cascina',
+      FABBRICATO: 'Fabbricato',
+      LABORATORIO: 'Laboratorio',
+      LOFT: 'Loft',
+      MAGAZZINO_CAPANNONE: 'Magazzino/Capannone',
+      MANSARDA: 'Mansarda',
+      MONOLOCALE: 'Monolocale',
+      NEGOZIO: 'Negozio',
+      RUSTICO: 'Rustico',
+      STUDIO: 'Studio',
+      TERRENO: 'Terreno',
+
+      CENTRALE: 'Centrale',
+      FUORI_CITTA: 'Fuori Città',
+      PERIFERIA: 'Periferia',
+      SEMI_CENTRALE: 'Semi-Centrale',
+
+      AFFITTO: 'Affitto',
+      AFFITTO_SEMI_ARREDATO: 'Affitto semi-arredato',
+      VENDITA: 'Vendita',
+    }
+
+    return (
+        labels[valore] ||
+        valore
+            .toString()
+            .toLowerCase()
+            .replaceAll('_', ' ')
+            .replace(/\b\w/g, (lettera) => lettera.toUpperCase())
+    )
+  }
+
+  const formatTipi = (valore) => {
+    if (!valore) {
+      return 'Non specificato'
+    }
+
+    return valore
+        .toString()
+        .split(',')
+        .map((tipo) => formatEnum(tipo.trim()))
+        .join(', ')
   }
 
   if (loading) {
@@ -101,6 +205,7 @@ export default function ImmobileDetail() {
 
             <div className="flex gap-4">
               <button
+                  type="button"
                   onClick={() => navigate('/login')}
                   className="hover:text-gray-300 flex items-center gap-1"
               >
@@ -119,7 +224,10 @@ export default function ImmobileDetail() {
             </div>
 
             <nav className="flex gap-6 mb-4">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link
+                  to="/"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+              >
                 Home
               </Link>
 
@@ -127,20 +235,30 @@ export default function ImmobileDetail() {
                 Immobili
               </Link>
 
-              <Link to="/contatti" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link
+                  to="/contatti"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+              >
                 Contatti
               </Link>
 
-              <Link to="/servizi" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link
+                  to="/servizi"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+              >
                 Servizi
               </Link>
 
-              <Link to="/agenzia" className="text-gray-700 hover:text-blue-600 font-medium">
+              <Link
+                  to="/agenzia"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+              >
                 Agenzia
               </Link>
             </nav>
 
             <button
+                type="button"
                 onClick={() => navigate('/immobili')}
                 className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
             >
@@ -154,15 +272,15 @@ export default function ImmobileDetail() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Images Section */}
-            <div className="relative bg-gray-200 h-96 flex items-center justify-center overflow-hidden">
+            <div className="relative bg-gray-100 min-h-[650px] flex items-center justify-center overflow-hidden">
               {fotoPrincipale ? (
                   <img
                       src={fotoPrincipale}
                       alt={immobile.titolo}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full max-h-[650px] object-contain"
                   />
               ) : (
-                  <div className="bg-gradient-to-r from-blue-400 to-indigo-400 w-full h-full flex items-center justify-center">
+                  <div className="bg-gradient-to-r from-blue-400 to-indigo-400 w-full min-h-[650px] flex items-center justify-center">
                     <HomeIcon className="w-24 h-24 text-white" />
                   </div>
               )}
@@ -227,12 +345,18 @@ export default function ImmobileDetail() {
               {/* Location and Price */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
-                  <div className="flex items-center gap-2 text-gray-600 mb-4 text-lg">
+                  <button
+                      type="button"
+                      onClick={vaiAllaMappa}
+                      className="flex items-center gap-2 text-gray-600 mb-4 text-lg hover:text-blue-600 transition text-left"
+                  >
                     <MapPin className="w-5 h-5 text-red-500" />
-                    <span>
-                    {immobile.via || '-'}, {immobile.numeroCivico || '-'}
+
+                    <span className="underline-offset-4 hover:underline">
+                    {immobile.via || '-'}
+                      {immobile.numeroCivico ? `, ${immobile.numeroCivico}` : ''}
                   </span>
-                  </div>
+                  </button>
 
                   <p className="text-gray-600 mb-2">
                     {immobile.citta}, {immobile.provincia || '-'}
@@ -250,7 +374,7 @@ export default function ImmobileDetail() {
               </div>
 
               {/* Key Features */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 pb-8 border-b">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 pb-8 border-b">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center gap-2 text-gray-600 mb-2">
                     <HomeIcon className="w-5 h-5" />
@@ -268,6 +392,16 @@ export default function ImmobileDetail() {
                   </div>
                   <p className="text-2xl font-bold text-gray-800">
                     {immobile.numeroBagni || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-gray-600 mb-2">
+                    <HomeIcon className="w-5 h-5" />
+                    <span className="text-sm">Camere</span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {immobile.camereDaLetto || '-'}
                   </p>
                 </div>
 
@@ -295,16 +429,25 @@ export default function ImmobileDetail() {
               </div>
 
               {/* Additional Info */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div>
-                  <p className="text-gray-600 text-sm mb-1">Tipo</p>
-                  <p className="font-semibold text-gray-800">{immobile.tipo}</p>
+                  <p className="text-gray-600 text-sm mb-1">Ubicazione</p>
+                  <p className="font-semibold text-gray-800">
+                    {formatEnum(immobile.ubicazione)}
+                  </p>
                 </div>
 
                 <div>
-                  <p className="text-gray-600 text-sm mb-1">Ascensore</p>
+                  <p className="text-gray-600 text-sm mb-1">Destinazione</p>
                   <p className="font-semibold text-gray-800">
-                    {immobile.ascensore ? 'Sì' : 'No'}
+                    {formatEnum(immobile.destinazione)}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-gray-600 text-sm mb-1">Tipo</p>
+                  <p className="font-semibold text-gray-800">
+                    {formatTipi(immobile.tipo)}
                   </p>
                 </div>
 
@@ -315,6 +458,27 @@ export default function ImmobileDetail() {
                   </p>
                 </div>
               </div>
+
+              {/* Caratteristiche */}
+              {caratteristiche.length > 0 && (
+                  <div className="mb-8 pb-8 border-b">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                      Caratteristiche
+                    </h2>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {caratteristiche.map((caratteristica) => (
+                          <div
+                              key={caratteristica.key}
+                              className="flex items-center gap-2 bg-green-50 text-green-800 px-4 py-3 rounded-lg font-semibold"
+                          >
+                            <span className="text-green-600">✓</span>
+                            <span>{caratteristica.label}</span>
+                          </div>
+                      ))}
+                    </div>
+                  </div>
+              )}
 
               {/* Description */}
               <div className="mb-8">
@@ -327,6 +491,43 @@ export default function ImmobileDetail() {
                 </p>
               </div>
 
+              {/* Mappa Immobile */}
+              <div id="mappa-immobile" className="mb-8 pb-8 border-b scroll-mt-8">
+                <div className="mb-4">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Dov'è l'immobile
+                  </h2>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    La posizione indicata sulla mappa può essere approssimativa.
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-gray-700 font-semibold">
+                    {immobile.via || '-'}
+                    {immobile.numeroCivico ? `, ${immobile.numeroCivico}` : ''}
+                  </p>
+
+                  <p className="text-gray-600">
+                    {immobile.citta || '-'}
+                    {immobile.provincia ? `, ${immobile.provincia}` : ''}
+                  </p>
+                </div>
+
+                <div className="w-full h-[420px] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                  <iframe
+                      title={`Mappa ${immobile.titolo}`}
+                      src={mapsEmbedUrl}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+              </div>
+
               {/* Contact Section */}
               <div className="bg-blue-50 p-6 rounded-lg">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">
@@ -334,7 +535,8 @@ export default function ImmobileDetail() {
                 </h3>
 
                 <p className="text-gray-600 mb-4">
-                  Contatta l'agenzia per ulteriori informazioni su questa proprietà.
+                  Contatta l'agenzia per ulteriori informazioni su questa
+                  proprietà.
                 </p>
 
                 <Link

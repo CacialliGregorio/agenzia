@@ -1,0 +1,2 @@
+ALTER TABLE immobili
+ALTER COLUMN tipo TYPE TEXT;

@@ -13,69 +13,127 @@ export default function SearchForm({ onSearch }) {
     bagniMax: '',
     prezzoMin: 0,
     prezzoMax: 2000000,
-    id: '',
+    codiceRiferimento: '',
   })
 
   const [openDropdown, setOpenDropdown] = useState(null)
+
   const [filterText, setFilterText] = useState({
     localita: '',
     ubicazione: '',
     destinazione: '',
     tipo: '',
-    camereLettoMin: '',
-    camereLettoMax: '',
-    bagniMin: '',
-    bagniMax: '',
   })
 
   const options = {
     localita: [
+      'Cremona',
+      'Acquanegra Cremonese',
+      'Altre Città',
       'Bagnara',
+      'Bettenesco',
+      'Binanuova',
       'Bonemerse',
+      'Bosco Ex Parmigiano',
+      'Brescia',
       'Casalbuttano',
+      'Casanova del Morbasco',
       'Castelverde',
       'Castelvetro Piacentino',
-      'Cremona',
+      'Cavatigozzi',
+      'Cicognolo',
+      "Cingia de' Botti",
+      "Corte de' Frati",
+      'Corte Madama',
+      'Fogarole',
       'Gadesco Pieve Delmona',
+      'Grumello Cremonese',
+      'Isola Pescaroli',
+      'Lago',
+      'Malagnino',
+      'Mare',
+      'Marzalengo',
+      'Montagna',
+      "Monticelli d'Ongina",
+      'Motta Baluffi',
+      'Olmeneta',
+      'Persichello',
+      'Piadena',
       "Pieve d'Olmi",
+      'Pozzaglio',
+      'Rivarolo del Re',
+      "Robecco d'Oglio",
+      'San Daniele Po',
+      'San Giuliano',
+      'San Martino in Beliseto',
+      'San Paolo (Bs)',
+      'Scandolara Ravara',
       'Seniga (Bs)',
+      'Sesto ed Uniti',
+      'Sospiro',
+      'Spinadesco',
+      'Vescovato',
     ],
+
     ubicazione: [
       'Centrale',
       'Fuori Città',
       'Periferia',
       'Semi-Centrale',
     ],
+
     destinazione: [
       'Affitto',
-      'Affitto Semi Arredato',
+      'Affitto semi-arredato',
       'Vendita',
     ],
+
     tipo: [
+      'Villa',
+      'Villetta',
+      'Appartamento',
       'Attico',
+      'Attività Commerciale',
       'Bilocale',
       'Box',
       'Casa Indipendente',
       'Cascina',
       'Fabbricato',
       'Laboratorio',
+      'Loft',
       'Magazzino/Capannone',
+      'Mansarda',
+      'Monolocale',
+      'Negozio',
+      'Rustico',
+      'Studio',
+      'Terreno',
     ],
+
     camere: ['1', '2', '3', '4', '5', '6', '7', '8'],
     bagni: ['1', '2', '3', '4', '5', '6', '7', '8'],
   }
 
   const getFilteredOptions = (key) => {
     const filter = filterText[key]?.toLowerCase() || ''
+
     return options[key].filter((option) =>
         option.toLowerCase().includes(filter)
     )
   }
 
   const handleDropdownChange = (key, value) => {
-    setFormData({ ...formData, [key]: value })
+    setFormData({
+      ...formData,
+      [key]: value,
+    })
+
     setOpenDropdown(null)
-    setFilterText({ ...filterText, [key]: '' })
+
+    setFilterText({
+      ...filterText,
+      [key]: '',
+    })
   }
 
   const handlePriceChange = (side, value) => {
@@ -83,11 +141,17 @@ export default function SearchForm({ onSearch }) {
 
     if (side === 'min') {
       if (numValue <= formData.prezzoMax) {
-        setFormData({ ...formData, prezzoMin: numValue })
+        setFormData({
+          ...formData,
+          prezzoMin: numValue,
+        })
       }
     } else {
       if (numValue >= formData.prezzoMin) {
-        setFormData({ ...formData, prezzoMax: numValue })
+        setFormData({
+          ...formData,
+          prezzoMax: numValue,
+        })
       }
     }
   }
@@ -103,7 +167,10 @@ export default function SearchForm({ onSearch }) {
         <div className="max-w-7xl mx-auto">
           {/* Titolo */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">TROVA IMMOBILI</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">
+              TROVA IMMOBILI
+            </h1>
+
             <p className="text-white text-lg">
               Trova subito l'immobile adatto a te nella zona che vuoi. Comincia subito una ricerca!
             </p>
@@ -122,7 +189,9 @@ export default function SearchForm({ onSearch }) {
                 <button
                     type="button"
                     onClick={() =>
-                        setOpenDropdown(openDropdown === 'localita' ? null : 'localita')
+                        setOpenDropdown(
+                            openDropdown === 'localita' ? null : 'localita'
+                        )
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white flex justify-between items-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
@@ -131,13 +200,16 @@ export default function SearchForm({ onSearch }) {
                 </button>
 
                 {openDropdown === 'localita' && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-hidden">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 max-h-60 overflow-hidden">
                       <input
                           type="text"
-                          placeholder="Filtra..."
+                          placeholder="Filtra località..."
                           value={filterText.localita}
                           onChange={(e) =>
-                              setFilterText({ ...filterText, localita: e.target.value })
+                              setFilterText({
+                                ...filterText,
+                                localita: e.target.value,
+                              })
                           }
                           className="w-full px-4 py-2 border-b border-gray-300 focus:outline-none"
                       />
@@ -147,7 +219,9 @@ export default function SearchForm({ onSearch }) {
                             <button
                                 type="button"
                                 key={option}
-                                onClick={() => handleDropdownChange('localita', option)}
+                                onClick={() =>
+                                    handleDropdownChange('localita', option)
+                                }
                                 className="w-full text-left px-4 py-2 hover:bg-green-50 transition"
                             >
                               {option}
@@ -167,7 +241,9 @@ export default function SearchForm({ onSearch }) {
                 <button
                     type="button"
                     onClick={() =>
-                        setOpenDropdown(openDropdown === 'ubicazione' ? null : 'ubicazione')
+                        setOpenDropdown(
+                            openDropdown === 'ubicazione' ? null : 'ubicazione'
+                        )
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white flex justify-between items-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
@@ -176,13 +252,16 @@ export default function SearchForm({ onSearch }) {
                 </button>
 
                 {openDropdown === 'ubicazione' && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20">
                       <input
                           type="text"
-                          placeholder="Filtra..."
+                          placeholder="Filtra ubicazione..."
                           value={filterText.ubicazione}
                           onChange={(e) =>
-                              setFilterText({ ...filterText, ubicazione: e.target.value })
+                              setFilterText({
+                                ...filterText,
+                                ubicazione: e.target.value,
+                              })
                           }
                           className="w-full px-4 py-2 border-b border-gray-300 focus:outline-none"
                       />
@@ -192,7 +271,9 @@ export default function SearchForm({ onSearch }) {
                             <button
                                 type="button"
                                 key={option}
-                                onClick={() => handleDropdownChange('ubicazione', option)}
+                                onClick={() =>
+                                    handleDropdownChange('ubicazione', option)
+                                }
                                 className="w-full text-left px-4 py-2 hover:bg-green-50 transition"
                             >
                               {option}
@@ -212,7 +293,9 @@ export default function SearchForm({ onSearch }) {
                 <button
                     type="button"
                     onClick={() =>
-                        setOpenDropdown(openDropdown === 'destinazione' ? null : 'destinazione')
+                        setOpenDropdown(
+                            openDropdown === 'destinazione' ? null : 'destinazione'
+                        )
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white flex justify-between items-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
@@ -221,10 +304,10 @@ export default function SearchForm({ onSearch }) {
                 </button>
 
                 {openDropdown === 'destinazione' && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20">
                       <input
                           type="text"
-                          placeholder="Filtra..."
+                          placeholder="Filtra destinazione..."
                           value={filterText.destinazione}
                           onChange={(e) =>
                               setFilterText({
@@ -240,7 +323,9 @@ export default function SearchForm({ onSearch }) {
                             <button
                                 type="button"
                                 key={option}
-                                onClick={() => handleDropdownChange('destinazione', option)}
+                                onClick={() =>
+                                    handleDropdownChange('destinazione', option)
+                                }
                                 className="w-full text-left px-4 py-2 hover:bg-green-50 transition"
                             >
                               {option}
@@ -269,13 +354,16 @@ export default function SearchForm({ onSearch }) {
                 </button>
 
                 {openDropdown === 'tipo' && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 max-h-60 overflow-hidden">
                       <input
                           type="text"
-                          placeholder="Filtra..."
+                          placeholder="Filtra tipo..."
                           value={filterText.tipo}
                           onChange={(e) =>
-                              setFilterText({ ...filterText, tipo: e.target.value })
+                              setFilterText({
+                                ...filterText,
+                                tipo: e.target.value,
+                              })
                           }
                           className="w-full px-4 py-2 border-b border-gray-300 focus:outline-none"
                       />
@@ -309,7 +397,9 @@ export default function SearchForm({ onSearch }) {
                     type="button"
                     onClick={() =>
                         setOpenDropdown(
-                            openDropdown === 'camereLettoMin' ? null : 'camereLettoMin'
+                            openDropdown === 'camereLettoMin'
+                                ? null
+                                : 'camereLettoMin'
                         )
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white flex justify-between items-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -319,7 +409,7 @@ export default function SearchForm({ onSearch }) {
                 </button>
 
                 {openDropdown === 'camereLettoMin' && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20">
                       <div className="max-h-48 overflow-y-auto">
                         {options.camere.map((option) => (
                             <button
@@ -356,13 +446,15 @@ export default function SearchForm({ onSearch }) {
                 </button>
 
                 {openDropdown === 'bagniMin' && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20">
                       <div className="max-h-48 overflow-y-auto">
                         {options.bagni.map((option) => (
                             <button
                                 type="button"
                                 key={option}
-                                onClick={() => handleDropdownChange('bagniMin', option)}
+                                onClick={() =>
+                                    handleDropdownChange('bagniMin', option)
+                                }
                                 className="w-full text-left px-4 py-2 hover:bg-green-50 transition"
                             >
                               {option}
@@ -389,7 +481,9 @@ export default function SearchForm({ onSearch }) {
                         max="2000000"
                         step="10000"
                         value={formData.prezzoMin}
-                        onChange={(e) => handlePriceChange('min', e.target.value)}
+                        onChange={(e) =>
+                            handlePriceChange('min', e.target.value)
+                        }
                         className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
                     />
 
@@ -407,7 +501,9 @@ export default function SearchForm({ onSearch }) {
                         max="2000000"
                         step="10000"
                         value={formData.prezzoMax}
-                        onChange={(e) => handlePriceChange('max', e.target.value)}
+                        onChange={(e) =>
+                            handlePriceChange('max', e.target.value)
+                        }
                         className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
                     />
 
@@ -423,15 +519,24 @@ export default function SearchForm({ onSearch }) {
                 </div>
               </div>
 
-              {/* ID */}
+              {/* CODICE RIFERIMENTO */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ID
+                  Codice di riferimento
                 </label>
 
-                <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 text-sm">
-                  Auto-generato
-                </div>
+                <input
+                    type="text"
+                    value={formData.codiceRiferimento || ''}
+                    onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          codiceRiferimento: e.target.value,
+                        })
+                    }
+                    placeholder="Es. 1813"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
               </div>
             </div>
 

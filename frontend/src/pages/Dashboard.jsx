@@ -1,18 +1,25 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
-import { LogOut, Plus, Edit, Trash2 } from 'lucide-react'
+import { LogOut, Plus, Edit, Trash2, StickyNote, Save } from 'lucide-react'
 import ImmobileForm from '../components/ImmobileForm'
-import WhatsAppTopLink from '../components/WhatsAppTopLink'
+
 export default function Dashboard() {
   const navigate = useNavigate()
 
   const [immobili, setImmobili] = useState([])
   const [loading, setLoading] = useState(true)
+
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [editingData, setEditingData] = useState(null)
   const [saving, setSaving] = useState(false)
+
+  const [selectedNoteId, setSelectedNoteId] = useState(null)
+  const [selectedNoteImmobile, setSelectedNoteImmobile] = useState(null)
+  const [noteText, setNoteText] = useState('')
+  const [noteLoading, setNoteLoading] = useState(false)
+  const [noteSaving, setNoteSaving] = useState(false)
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
 
@@ -49,6 +56,9 @@ export default function Dashboard() {
   const handleCreate = () => {
     setEditingId(null)
     setEditingData(null)
+    setSelectedNoteId(null)
+    setSelectedNoteImmobile(null)
+    setNoteText('')
     setShowForm(true)
   }
 
@@ -58,6 +68,9 @@ export default function Dashboard() {
 
       setEditingId(id)
       setEditingData(response.data)
+      setSelectedNoteId(null)
+      setSelectedNoteImmobile(null)
+      setNoteText('')
       setShowForm(true)
 
       setTimeout(() => {
@@ -73,14 +86,21 @@ export default function Dashboard() {
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Sei sicuro di voler eliminare questo annuncio?')) {
-      try {
-        await axiosInstance.delete(`/immobili/${id}`)
-        setImmobili(immobili.filter((i) => i.id !== id))
-      } catch (error) {
-        console.error("Errore nell'eliminazione:", error)
-        alert("Errore nell'eliminazione")
+    if (!window.confirm('Sei sicuro di voler eliminare questo annuncio?')) {
+      return
+    }
+
+    try {
+      await axiosInstance.delete(`/immobili/${id}`)
+
+      setImmobili((prev) => prev.filter((immobile) => immobile.id !== id))
+
+      if (selectedNoteId === id) {
+        handleCloseNote()
       }
+    } catch (error) {
+      console.error("Errore nell'eliminazione:", error)
+      alert("Errore nell'eliminazione")
     }
   }
 
@@ -112,12 +132,6 @@ export default function Dashboard() {
         if (fotoFiles && fotoFiles.length > 0) {
           await uploadFoto(editingId, fotoFiles)
         }
-
-        await fetchMyImmobili()
-
-        setEditingId(null)
-        setEditingData(null)
-        setShowForm(false)
       } else {
         const response = await axiosInstance.post('/immobili', data)
         const nuovoImmobile = response.data
@@ -125,19 +139,80 @@ export default function Dashboard() {
         if (fotoFiles && fotoFiles.length > 0) {
           await uploadFoto(nuovoImmobile.id, fotoFiles)
         }
-
-        await fetchMyImmobili()
-
-        setEditingId(null)
-        setEditingData(null)
-        setShowForm(false)
       }
+
+      await fetchMyImmobili()
+
+      setEditingId(null)
+      setEditingData(null)
+      setShowForm(false)
     } catch (error) {
       console.error('Errore nel salvataggio annuncio:', error)
       alert("Errore nel salvataggio dell'annuncio o delle immagini")
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleOpenNote = async (immobile) => {
+    setShowForm(false)
+    setEditingId(null)
+    setEditingData(null)
+
+    setSelectedNoteId(immobile.id)
+    setSelectedNoteImmobile(immobile)
+    setNoteLoading(true)
+
+    try {
+      const response = await axiosInstance.get(
+          `/admin/immobili/${immobile.id}/note`
+      )
+
+      setNoteText(response.data.notePrivate || '')
+
+      setTimeout(() => {
+        const noteSection = document.getElementById('note-private-section')
+
+        if (noteSection) {
+          noteSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          })
+        }
+      }, 100)
+    } catch (error) {
+      console.error('Errore caricamento note private:', error)
+      alert('Errore nel caricamento delle note private')
+    } finally {
+      setNoteLoading(false)
+    }
+  }
+
+  const handleSaveNote = async () => {
+    if (!selectedNoteId) {
+      return
+    }
+
+    setNoteSaving(true)
+
+    try {
+      await axiosInstance.put(`/admin/immobili/${selectedNoteId}/note`, {
+        notePrivate: noteText,
+      })
+
+      alert('Note private salvate correttamente')
+    } catch (error) {
+      console.error('Errore salvataggio note private:', error)
+      alert('Errore nel salvataggio delle note private')
+    } finally {
+      setNoteSaving(false)
+    }
+  }
+
+  const handleCloseNote = () => {
+    setSelectedNoteId(null)
+    setSelectedNoteImmobile(null)
+    setNoteText('')
   }
 
   const handleCancelForm = () => {
@@ -197,6 +272,7 @@ export default function Dashboard() {
             </div>
 
             <button
+                type="button"
                 onClick={handleLogout}
                 className="hover:text-gray-300 flex items-center gap-1 text-red-400 hover:text-red-300"
             >
@@ -289,6 +365,7 @@ export default function Dashboard() {
           {/* Create Button */}
           {!showForm && (
               <button
+                  type="button"
                   onClick={handleCreate}
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 mb-6 font-semibold"
               >
@@ -305,8 +382,8 @@ export default function Dashboard() {
               </h2>
 
               <p className="text-sm text-gray-500 mb-4">
-                In questa tabella vedi anche gli immobili venduti o affittati.
-                Nel sito pubblico vengono mostrati solo quelli disponibili.
+                In questa tabella vedi anche gli immobili venduti o affittati. Nel
+                sito pubblico vengono mostrati solo quelli disponibili.
               </p>
 
               {loading ? (
@@ -321,15 +398,19 @@ export default function Dashboard() {
                         <th className="px-4 py-2 text-left font-semibold text-gray-700">
                           Titolo
                         </th>
+
                         <th className="px-4 py-2 text-left font-semibold text-gray-700">
                           Città
                         </th>
+
                         <th className="px-4 py-2 text-left font-semibold text-gray-700">
                           Prezzo
                         </th>
+
                         <th className="px-4 py-2 text-left font-semibold text-gray-700">
                           Stato
                         </th>
+
                         <th className="px-4 py-2 text-center font-semibold text-gray-700">
                           Azioni
                         </th>
@@ -342,7 +423,7 @@ export default function Dashboard() {
                               key={immobile.id}
                               className="border-b hover:bg-gray-50"
                           >
-                            <td className="px-4 py-3 text-gray-800">
+                            <td className="px-4 py-3 text-gray-800 font-semibold">
                               {immobile.titolo}
                             </td>
 
@@ -364,22 +445,35 @@ export default function Dashboard() {
                           </span>
                             </td>
 
-                            <td className="px-4 py-3 text-center flex justify-center gap-2">
-                              <button
-                                  type="button"
-                                  onClick={() => handleEdit(immobile.id)}
-                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => handleEdit(immobile.id)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                                    title="Modifica"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
 
-                              <button
-                                  type="button"
-                                  onClick={() => handleDelete(immobile.id)}
-                                  className="p-2 text-red-600 hover:bg-red-50 rounded"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleOpenNote(immobile)}
+                                    className="p-2 text-yellow-600 hover:bg-yellow-50 rounded"
+                                    title="Note private"
+                                >
+                                  <StickyNote className="w-4 h-4" />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => handleDelete(immobile.id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded"
+                                    title="Elimina"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                       ))}
@@ -389,6 +483,69 @@ export default function Dashboard() {
               )}
             </div>
           </div>
+
+          {/* Note private */}
+          {selectedNoteId && (
+              <div
+                  id="note-private-section"
+                  className="bg-white rounded-lg shadow-lg mt-8 p-6 border border-yellow-200"
+              >
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Note private per l'immobile
+                    </h2>
+
+                    <p className="text-gray-600 mt-1">
+                      {selectedNoteImmobile?.titolo} — Rif.{' '}
+                      {selectedNoteImmobile?.id}
+                    </p>
+                  </div>
+
+                  <button
+                      type="button"
+                      onClick={handleCloseNote}
+                      className="text-gray-500 hover:text-gray-800 font-semibold"
+                  >
+                    Chiudi
+                  </button>
+                </div>
+
+                {noteLoading ? (
+                    <p className="text-gray-600">Caricamento note...</p>
+                ) : (
+                    <>
+                <textarea
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                    rows="8"
+                    placeholder="Scrivi qui note interne, appuntamenti, informazioni del proprietario, promemoria o dettagli non visibili al pubblico..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                />
+
+                      <div className="flex gap-4 mt-4">
+                        <button
+                            type="button"
+                            onClick={handleSaveNote}
+                            disabled={noteSaving}
+                            className="bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg hover:bg-yellow-600 font-semibold flex items-center gap-2 disabled:bg-gray-300"
+                        >
+                          <Save className="w-5 h-5" />
+                          {noteSaving ? 'Salvataggio...' : 'Salva note'}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleCloseNote}
+                            className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 font-semibold"
+                        >
+                          Annulla
+                        </button>
+                      </div>
+                    </>
+                )}
+              </div>
+          )}
         </div>
       </div>
   )

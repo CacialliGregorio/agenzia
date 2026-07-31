@@ -46,3 +46,9 @@ jwt:
   secret: your-super-secret-key-change-this-in-production-with-environment-variable
   expiration: 86400000 # 24 hours in milliseconds
 
+r2:
+  bucket-name: ${R2_BUCKET_NAME}
+  endpoint: ${R2_ENDPOINT}
+  public-url: ${R2_PUBLIC_URL}
+  access-key-id: ${R2_ACCESS_KEY_ID}
+  secret-access-key: ${R2_SECRET_ACCESS_KEY}

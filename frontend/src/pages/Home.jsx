@@ -21,7 +21,8 @@ import {
 } from 'lucide-react'
 import SearchForm from '../components/SearchForm'
 import WhatsAppTopLink from '../components/WhatsAppTopLink'
-const BACKEND_URL = 'http://localhost:8080'
+const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 export default function Home() {
   const [immobili, setImmobili] = useState([])
@@ -101,6 +102,9 @@ export default function Home() {
 
   const handleSearchHome = (filtri) => {
     const params = new URLSearchParams()
+    if (filtri.codiceRiferimento) {
+      params.set('codiceRiferimento', filtri.codiceRiferimento)
+    }
 
     if (filtri.localita) {
       params.set('localita', filtri.localita)
@@ -528,36 +532,30 @@ export default function Home() {
         <footer className="bg-green-900 text-white">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
-              {/* Copyright + pulsanti policy */}
-              <div className="w-full md:w-1/2">
-                <p className="text-sm text-white/90 mb-2">
-                  © 2017 Il Mondo Immobiliare. All Rights Reserved. Partita IVA:
-                  01585350190
-                </p>
+              <div className="flex flex-col items-start gap-1">
+                <a
+                    href="https://www.iubenda.com/privacy-policy/51205261"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
+                >
+                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                     i
+                    </span>
+                  Privacy Policy
+                </a>
 
-                <div className="flex flex-col items-start gap-1">
-                  <button
-                      type="button"
-                      onClick={() => {}}
-                      className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
-                  >
-            <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-              i
-            </span>
-                    Privacy Policy
-                  </button>
-
-                  <button
-                      type="button"
-                      onClick={() => {}}
-                      className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
-                  >
-            <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-              i
-            </span>
-                    Cookie Policy
-                  </button>
-                </div>
+                <a
+                    href="https://www.iubenda.com/privacy-policy/51205261/cookie-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
+                >
+                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                       i
+                    </span>
+                  Cookie Policy
+                </a>
               </div>
 
               {/* Logo grande a destra */}

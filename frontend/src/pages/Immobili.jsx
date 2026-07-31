@@ -14,7 +14,8 @@ import SearchForm from '../components/SearchForm'
 import axiosInstance from '../api/axiosInstance'
 import WhatsAppTopLink from '../components/WhatsAppTopLink'
 
-const BACKEND_URL = 'http://localhost:8080'
+const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 export default function Immobili() {
   const token = localStorage.getItem('token')
@@ -35,6 +36,7 @@ export default function Immobili() {
       bagniMin: urlSearchParams.get('bagniMin') || '',
       prezzoMin: Number(urlSearchParams.get('prezzoMin') || 0),
       prezzoMax: Number(urlSearchParams.get('prezzoMax') || 2000000),
+      codiceRiferimento: urlSearchParams.get('codiceRiferimento') || '',
     }
 
     const ciSonoFiltri =
@@ -44,6 +46,7 @@ export default function Immobili() {
         filtriDaUrl.tipo ||
         filtriDaUrl.camereLettoMin ||
         filtriDaUrl.bagniMin ||
+        filtriDaUrl.codiceRiferimento ||
         filtriDaUrl.prezzoMin > 0 ||
         filtriDaUrl.prezzoMax < 2000000
 
@@ -66,6 +69,63 @@ export default function Immobili() {
     }
 
     return `${BACKEND_URL}${primaFoto}`
+  }
+
+  const normalizza = (valore) => {
+    return (
+        valore
+            ?.toString()
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') || ''
+    )
+  }
+
+  const formatEnum = (valore) => {
+    if (!valore) {
+      return ''
+    }
+
+    const labels = {
+      VILLA: 'Villa',
+      VILLETTA: 'Villetta',
+      APPARTAMENTO: 'Appartamento',
+      ATTICO: 'Attico',
+      ATTIVITA_COMMERCIALE: 'Attività Commerciale',
+      BILOCALE: 'Bilocale',
+      BOX: 'Box',
+      CASA_INDIPENDENTE: 'Casa Indipendente',
+      CASCINA: 'Cascina',
+      FABBRICATO: 'Fabbricato',
+      LABORATORIO: 'Laboratorio',
+      LOFT: 'Loft',
+      MAGAZZINO_CAPANNONE: 'Magazzino/Capannone',
+      MANSARDA: 'Mansarda',
+      MONOLOCALE: 'Monolocale',
+      NEGOZIO: 'Negozio',
+      RUSTICO: 'Rustico',
+      STUDIO: 'Studio',
+      TERRENO: 'Terreno',
+
+      CENTRALE: 'Centrale',
+      FUORI_CITTA: 'Fuori Città',
+      PERIFERIA: 'Periferia',
+      SEMI_CENTRALE: 'Semi-Centrale',
+
+      AFFITTO: 'Affitto',
+      AFFITTO_SEMI_ARREDATO: 'Affitto semi-arredato',
+      VENDITA: 'Vendita',
+    }
+
+    return (
+        labels[valore] ||
+        valore
+            .toString()
+            .toLowerCase()
+            .replaceAll('_', ' ')
+            .replace(/\b\w/g, (lettera) => lettera.toUpperCase())
+    )
   }
 
   const caricaImmobili = async () => {
@@ -105,47 +165,50 @@ export default function Immobili() {
 
       let risultati = response.data.content || []
 
+      if (filtri.codiceRiferimento) {
+        risultati = risultati.filter((immobile) =>
+            immobile.codiceRiferimento
+                ?.toString()
+                .toLowerCase()
+                .includes(
+                    filtri.codiceRiferimento.toString().trim().toLowerCase()
+                )
+        )
+      }
+
       if (filtri.localita) {
         risultati = risultati.filter((immobile) =>
-            immobile.citta
-                ?.toLowerCase()
-                .includes(filtri.localita.toLowerCase())
+            normalizza(immobile.citta).includes(normalizza(filtri.localita))
+        )
+      }
+
+      if (filtri.ubicazione) {
+        risultati = risultati.filter(
+            (immobile) =>
+                normalizza(formatEnum(immobile.ubicazione)) ===
+                normalizza(filtri.ubicazione)
+        )
+      }
+
+      if (filtri.destinazione) {
+        risultati = risultati.filter(
+            (immobile) =>
+                normalizza(formatEnum(immobile.destinazione)) ===
+                normalizza(filtri.destinazione)
         )
       }
 
       if (filtri.tipo) {
-        risultati = risultati.filter((immobile) => {
-          const tipoImmobile = immobile.tipo?.toLowerCase() || ''
-          const tipoCercato = filtri.tipo.toLowerCase()
-
-          if (tipoCercato === 'bilocale') {
-            return Number(immobile.numeroLocali || 0) === 2
-          }
-
-          if (tipoCercato === 'attico') {
-            return Number(immobile.piano || 0) >= 4
-          }
-
-          if (tipoCercato === 'casa indipendente') {
-            return tipoImmobile === 'casa'
-          }
-
-          if (tipoCercato === 'box') {
-            return tipoImmobile === 'garage'
-          }
-
-          if (tipoCercato === 'magazzino/capannone') {
-            return tipoImmobile === 'terreno' || tipoImmobile === 'magazzino'
-          }
-
-          return tipoImmobile.includes(tipoCercato)
-        })
+        risultati = risultati.filter(
+            (immobile) =>
+                normalizza(formatEnum(immobile.tipo)) === normalizza(filtri.tipo)
+        )
       }
 
       if (filtri.camereLettoMin) {
         risultati = risultati.filter(
             (immobile) =>
-                Number(immobile.numeroLocali || 0) >=
+                Number(immobile.camereDaLetto || 0) >=
                 Number(filtri.camereLettoMin)
         )
       }
@@ -336,6 +399,13 @@ export default function Immobili() {
                             {immobile.titolo}
                           </h3>
 
+                          {/* Punto 9: qui mostriamo il riferimento nella card */}
+                          {immobile.codiceRiferimento && (
+                              <p className="text-sm font-semibold text-green-700 mb-2">
+                                Rif. {immobile.codiceRiferimento}
+                              </p>
+                          )}
+
                           <p className="text-gray-600 mb-4 line-clamp-2">
                             {immobile.descrizione}
                           </p>
@@ -346,11 +416,18 @@ export default function Immobili() {
                             </p>
 
                             <p>
-                              <strong>Tipo:</strong> {immobile.tipo}
+                              <strong>Tipo:</strong>{' '}
+                              {immobile.tipo
+                                  ? immobile.tipo
+                                      .split(',')
+                                      .map((tipo) => formatEnum(tipo.trim()))
+                                      .join(', ')
+                                  : 'Non specificato'}
                             </p>
 
                             <p>
-                              <strong>Locali:</strong> {immobile.numeroLocali || '-'}
+                              <strong>Camere:</strong>{' '}
+                              {immobile.camereDaLetto || '-'}
                             </p>
 
                             <p>
@@ -479,27 +556,29 @@ export default function Immobili() {
                 </p>
 
                 <div className="flex flex-col items-start gap-1">
-                  <button
-                      type="button"
-                      onClick={() => {}}
+                  <a
+                      href="https://www.iubenda.com/privacy-policy/51205261"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
                   >
-                  <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                    i
-                  </span>
+                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                     i
+                    </span>
                     Privacy Policy
-                  </button>
+                  </a>
 
-                  <button
-                      type="button"
-                      onClick={() => {}}
+                  <a
+                      href="https://www.iubenda.com/privacy-policy/51205261/cookie-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
                   >
-                  <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                    i
-                  </span>
+                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                       i
+                    </span>
                     Cookie Policy
-                  </button>
+                  </a>
                 </div>
               </div>
 

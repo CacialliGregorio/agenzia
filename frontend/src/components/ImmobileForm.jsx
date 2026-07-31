@@ -8,7 +8,8 @@ import {
 } from 'lucide-react'
 import axiosInstance from '../api/axiosInstance'
 
-const BACKEND_URL = 'http://localhost:8080'
+const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 const formVuoto = {
   titolo: '',
@@ -18,18 +19,88 @@ const formVuoto = {
   provincia: '',
   via: '',
   numeroCivico: '',
-  tipo: 'APPARTAMENTO',
+  codiceRiferimento: '',
+  ubicazione: '',
+  destinazione: '',
+  tipo: [],
   stato: 'DISPONIBILE',
   superficieMq: '',
   numeroLocali: '',
   numeroBagni: '',
+  camereDaLetto: '',
   piano: '',
   ascensore: false,
+  garage: false,
+  pannelliSolari: false,
+  terrazza: false,
+  riscaldamentoPavimento: false,
+  giardino: false,
+  piscina: false,
+  impiantoAllarme: false,
+  ariaCondizionata: false,
+  vistaPanoramica: false,
+  ripostiglio: false,
+  termoautonomo: false,
+  portaBlindata: false,
+  cappotto: false,
+  cortilePrivato: false,
   riscaldamento: '',
 }
 
+const opzioniUbicazione = [
+  { value: 'CENTRALE', label: 'Centrale' },
+  { value: 'FUORI_CITTA', label: 'Fuori Città' },
+  { value: 'PERIFERIA', label: 'Periferia' },
+  { value: 'SEMI_CENTRALE', label: 'Semi-Centrale' },
+]
+
+const opzioniDestinazione = [
+  { value: 'AFFITTO', label: 'Affitto' },
+  { value: 'AFFITTO_SEMI_ARREDATO', label: 'Affitto semi-arredato' },
+  { value: 'VENDITA', label: 'Vendita' },
+]
+
+const opzioniTipo = [
+  { value: 'VILLA', label: 'Villa' },
+  { value: 'VILLETTA', label: 'Villetta' },
+  { value: 'APPARTAMENTO', label: 'Appartamento' },
+  { value: 'ATTICO', label: 'Attico' },
+  { value: 'ATTIVITA_COMMERCIALE', label: 'Attività Commerciale' },
+  { value: 'BILOCALE', label: 'Bilocale' },
+  { value: 'BOX', label: 'Box' },
+  { value: 'CASA_INDIPENDENTE', label: 'Casa Indipendente' },
+  { value: 'CASCINA', label: 'Cascina' },
+  { value: 'FABBRICATO', label: 'Fabbricato' },
+  { value: 'LABORATORIO', label: 'Laboratorio' },
+  { value: 'LOFT', label: 'Loft' },
+  { value: 'MAGAZZINO_CAPANNONE', label: 'Magazzino/Capannone' },
+  { value: 'MANSARDA', label: 'Mansarda' },
+  { value: 'MONOLOCALE', label: 'Monolocale' },
+  { value: 'NEGOZIO', label: 'Negozio' },
+  { value: 'RUSTICO', label: 'Rustico' },
+  { value: 'STUDIO', label: 'Studio' },
+  { value: 'TERRENO', label: 'Terreno' },
+]
+
+const caratteristicheImmobile = [
+  { name: 'pannelliSolari', label: 'Pannelli Solari' },
+  { name: 'garage', label: 'Garage' },
+  { name: 'terrazza', label: 'Terrazza' },
+  { name: 'riscaldamentoPavimento', label: 'Riscaldamento a Pavimento' },
+  { name: 'giardino', label: 'Giardino' },
+  { name: 'piscina', label: 'Piscina' },
+  { name: 'impiantoAllarme', label: 'Impianto Allarme' },
+  { name: 'ariaCondizionata', label: 'Aria Condizionata' },
+  { name: 'vistaPanoramica', label: 'Vista Panoramica' },
+  { name: 'ripostiglio', label: 'Ripostiglio' },
+  { name: 'termoautonomo', label: 'Termoautonomo' },
+  { name: 'portaBlindata', label: 'Porta Blindata' },
+  { name: 'cappotto', label: 'Cappotto' },
+  { name: 'cortilePrivato', label: 'Cortile Privato' },
+]
+
 export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
-  const [formData, setFormData] = useState(initialData || formVuoto)
+  const [formData, setFormData] = useState(formVuoto)
   const [fotoFiles, setFotoFiles] = useState([])
   const [fotoEsistenti, setFotoEsistenti] = useState(initialData?.fotoUrl || [])
   const [isDragging, setIsDragging] = useState(false)
@@ -37,7 +108,17 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
   const [salvataggioOrdine, setSalvataggioOrdine] = useState(false)
 
   useEffect(() => {
-    setFormData(initialData || formVuoto)
+    if (initialData) {
+      setFormData({
+        ...initialData,
+        tipo: initialData.tipo
+            ? initialData.tipo.split(',').map((valore) => valore.trim())
+            : [],
+      })
+    } else {
+      setFormData(formVuoto)
+    }
+
     setFotoEsistenti(initialData?.fotoUrl || [])
     setFotoFiles([])
   }, [initialData])
@@ -60,6 +141,26 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value,
+    })
+  }
+
+  const handleSceltaSingola = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    })
+  }
+
+  const handleTipoMultiplo = (value) => {
+    const tipiAttuali = Array.isArray(formData.tipo) ? formData.tipo : []
+
+    const nuoviTipi = tipiAttuali.includes(value)
+        ? tipiAttuali.filter((tipo) => tipo !== value)
+        : [...tipiAttuali, value]
+
+    setFormData({
+      ...formData,
+      tipo: nuoviTipi,
     })
   }
 
@@ -163,15 +264,24 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
 
     const datiImmobile = {
       ...formData,
+      tipo: Array.isArray(formData.tipo)
+          ? formData.tipo.join(',')
+          : formData.tipo,
       stato: formData.stato || 'DISPONIBILE',
       prezzo: parseFloat(formData.prezzo),
       superficieMq: parseFloat(formData.superficieMq) || null,
       numeroLocali: parseInt(formData.numeroLocali) || null,
       numeroBagni: parseInt(formData.numeroBagni) || null,
+      camereDaLetto: parseInt(formData.camereDaLetto) || null,
       piano:
           formData.piano === '' || formData.piano === null
               ? null
               : parseInt(formData.piano),
+    }
+
+    if (!datiImmobile.tipo) {
+      alert('Seleziona almeno un tipo di immobile')
+      return
     }
 
     onSubmit(datiImmobile, fotoFiles)
@@ -268,26 +378,117 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             />
           </div>
 
-          {/* Tipo */}
+          {/* Codice riferimento */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo *
+              Codice riferimento immobile
             </label>
-            <select
-                name="tipo"
-                value={formData.tipo || 'APPARTAMENTO'}
+            <input
+                type="text"
+                name="codiceRiferimento"
+                value={formData.codiceRiferimento || ''}
                 onChange={handleChange}
+                placeholder="Es: 1813"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="CASA">Casa</option>
-              <option value="APPARTAMENTO">Appartamento</option>
-              <option value="VILLA">Villa</option>
-              <option value="TERRENO">Terreno</option>
-              <option value="GARAGE">Garage</option>
-              <option value="UFFICIO">Ufficio</option>
-              <option value="MANSARDA">Mansarda</option>
-              <option value="NEGOZIO">Negozio</option>
-            </select>
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Questo codice sarà usato dai clienti per cercare l'annuncio.
+            </p>
+          </div>
+
+          {/* Ubicazione */}
+          <div className="md:col-span-2 border border-gray-200 rounded-xl bg-white shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-800">Ubicazione</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+              {opzioniUbicazione.map((opzione) => (
+                  <button
+                      key={opzione.value}
+                      type="button"
+                      onClick={() => handleSceltaSingola('ubicazione', opzione.value)}
+                      className={`p-3 border rounded-lg font-semibold text-left transition ${
+                          formData.ubicazione === opzione.value
+                              ? 'bg-blue-50 border-blue-600 text-blue-700'
+                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                  >
+                    {opzione.label}
+                  </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Destinazione */}
+          <div className="md:col-span-2 border border-gray-200 rounded-xl bg-white shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-800">Destinazione</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+              {opzioniDestinazione.map((opzione) => (
+                  <button
+                      key={opzione.value}
+                      type="button"
+                      onClick={() =>
+                          handleSceltaSingola('destinazione', opzione.value)
+                      }
+                      className={`p-3 border rounded-lg font-semibold text-left transition ${
+                          formData.destinazione === opzione.value
+                              ? 'bg-blue-50 border-blue-600 text-blue-700'
+                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                  >
+                    {opzione.label}
+                  </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tipo */}
+          <div className="md:col-span-2 border border-gray-200 rounded-xl bg-white shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-800">Tipo *</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Puoi selezionare uno o più tipi per lo stesso immobile.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+              {opzioniTipo.map((opzione) => {
+                const selezionato = Array.isArray(formData.tipo)
+                    ? formData.tipo.includes(opzione.value)
+                    : formData.tipo === opzione.value
+
+                return (
+                    <button
+                        key={opzione.value}
+                        type="button"
+                        onClick={() => handleTipoMultiplo(opzione.value)}
+                        className={`p-3 border rounded-lg font-semibold text-left transition ${
+                            selezionato
+                                ? 'bg-blue-50 border-blue-600 text-blue-700'
+                                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                        }`}
+                    >
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                        className={`w-4 h-4 border rounded flex items-center justify-center text-xs ${
+                            selezionato
+                                ? 'bg-blue-600 border-blue-600 text-white'
+                                : 'border-gray-300'
+                        }`}
+                    >
+                      {selezionato ? '✓' : ''}
+                    </span>
+
+                    {opzione.label}
+                  </span>
+                    </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Stato */}
@@ -353,6 +554,21 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
             />
           </div>
 
+          {/* Camere da letto */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Camere da letto
+            </label>
+            <input
+                type="number"
+                name="camereDaLetto"
+                value={formData.camereDaLetto || ''}
+                onChange={handleChange}
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {/* Piano */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -402,6 +618,36 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
           </div>
         </div>
 
+        {/* Caratteristiche */}
+        <div className="border border-gray-200 rounded-xl bg-white shadow-sm">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h3 className="text-lg font-bold text-gray-800">Caratteristiche</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+            {caratteristicheImmobile.map((caratteristica) => (
+                <label
+                    key={caratteristica.name}
+                    htmlFor={caratteristica.name}
+                    className="flex items-center justify-between gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
+                >
+              <span className="text-sm font-semibold text-gray-700">
+                {caratteristica.label}
+              </span>
+
+                  <input
+                      type="checkbox"
+                      name={caratteristica.name}
+                      id={caratteristica.name}
+                      checked={Boolean(formData[caratteristica.name])}
+                      onChange={handleChange}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                </label>
+            ))}
+          </div>
+        </div>
+
         {/* Descrizione */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -425,7 +671,8 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
               </label>
 
               <p className="text-sm text-gray-500 mb-3">
-                La prima foto mostrata sarà usata come immagine di copertina. Usa le frecce per cambiare ordine.
+                La prima foto mostrata sarà usata come immagine di copertina. Usa le
+                frecce per cambiare ordine.
               </p>
 
               {eliminazioneFoto && (
@@ -468,17 +715,13 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
                       </button>
 
                       <div className="px-2 py-2 text-xs text-gray-600">
-                        <div className="mb-2">
-                          Foto {index + 1}
-                        </div>
+                        <div className="mb-2">Foto {index + 1}</div>
 
                         <div className="flex items-center justify-between gap-2">
                           <button
                               type="button"
                               disabled={
-                                  index === 0 ||
-                                  eliminazioneFoto ||
-                                  salvataggioOrdine
+                                  index === 0 || eliminazioneFoto || salvataggioOrdine
                               }
                               onClick={() => spostaFotoEsistente(index, -1)}
                               className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1 rounded"
@@ -522,9 +765,7 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               className={`border-2 border-dashed rounded-xl p-6 text-center transition ${
-                  isDragging
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 bg-gray-50'
+                  isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'
               }`}
           >
             <UploadCloud className="w-10 h-10 mx-auto text-gray-500 mb-3" />

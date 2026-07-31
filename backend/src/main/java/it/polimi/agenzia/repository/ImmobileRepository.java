@@ -8,25 +8,29 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+
 @Repository
 public interface ImmobileRepository extends JpaRepository<Immobile, Long> {
-    
+
     Page<Immobile> findByStato(Immobile.Stato stato, Pageable pageable);
-    
+
     Page<Immobile> findByCittaContainingIgnoreCase(String citta, Pageable pageable);
-    
-    @Query("SELECT i FROM Immobile i WHERE " +
-           "(:citta IS NULL OR LOWER(i.citta) LIKE LOWER(CONCAT('%', :citta, '%'))) AND " +
-           "(:tipo IS NULL OR i.tipo = :tipo) AND " +
-           "(:stato IS NULL OR i.stato = :stato) AND " +
-           "i.prezzo BETWEEN :prezzoMin AND :prezzoMax")
+
+    @Query("""
+        SELECT i FROM Immobile i
+        WHERE (:citta IS NULL OR LOWER(i.citta) LIKE LOWER(CONCAT('%', :citta, '%')))
+        AND (:tipo IS NULL OR LOWER(i.tipo) LIKE LOWER(CONCAT('%', :tipo, '%')))
+        AND (:stato IS NULL OR i.stato = :stato)
+        AND (:prezzoMin IS NULL OR i.prezzo >= :prezzoMin)
+        AND (:prezzoMax IS NULL OR i.prezzo <= :prezzoMax)
+    """)
     Page<Immobile> cercaImmobili(
-        @Param("citta") String citta,
-        @Param("tipo") Immobile.TipoImmobile tipo,
-        @Param("stato") Immobile.Stato stato,
-        @Param("prezzoMin") java.math.BigDecimal prezzoMin,
-        @Param("prezzoMax") java.math.BigDecimal prezzoMax,
-        Pageable pageable
+            @Param("citta") String citta,
+            @Param("tipo") String tipo,
+            @Param("stato") Immobile.Stato stato,
+            @Param("prezzoMin") BigDecimal prezzoMin,
+            @Param("prezzoMax") BigDecimal prezzoMax,
+            Pageable pageable
     );
 }
-

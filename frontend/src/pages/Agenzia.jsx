@@ -284,27 +284,29 @@ export default function Agenzia() {
                 </p>
 
                 <div className="flex flex-col items-start gap-1">
-                  <button
-                      type="button"
-                      onClick={() => {}}
+                  <a
+                      href="https://www.iubenda.com/privacy-policy/51205261"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
                   >
-                  <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                    i
-                  </span>
+                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                     i
+                    </span>
                     Privacy Policy
-                  </button>
+                  </a>
 
-                  <button
-                      type="button"
-                      onClick={() => {}}
+                  <a
+                      href="https://www.iubenda.com/privacy-policy/51205261/cookie-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
                   >
-                  <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                    i
-                  </span>
+                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
+                       i
+                    </span>
                     Cookie Policy
-                  </button>
+                  </a>
                 </div>
               </div>
 

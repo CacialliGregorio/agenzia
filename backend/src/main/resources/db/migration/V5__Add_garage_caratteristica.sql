@@ -1,0 +1,2 @@
+ALTER TABLE immobili
+    ADD COLUMN garage BOOLEAN DEFAULT FALSE;

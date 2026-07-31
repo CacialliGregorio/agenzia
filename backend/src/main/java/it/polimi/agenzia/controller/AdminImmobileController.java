@@ -8,6 +8,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/immobili")
@@ -27,5 +30,42 @@ public class AdminImmobileController {
         return ResponseEntity.ok(
                 immobileService.getTuttiImmobiliDashboard(pageable)
         );
+    }
+
+    @GetMapping("/{id}/note")
+    public ResponseEntity<Map<String, String>> getNotePrivate(
+            @PathVariable Long id,
+            Authentication authentication) {
+        try {
+            Long userId = (Long) authentication.getDetails();
+
+            String notePrivate = immobileService.getNotePrivate(id, userId);
+
+            return ResponseEntity.ok(
+                    Map.of("notePrivate", notePrivate != null ? notePrivate : "")
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @PutMapping("/{id}/note")
+    public ResponseEntity<Map<String, String>> updateNotePrivate(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
+        try {
+            Long userId = (Long) authentication.getDetails();
+
+            String notePrivate = body.getOrDefault("notePrivate", "");
+
+            String savedNote = immobileService.updateNotePrivate(id, notePrivate, userId);
+
+            return ResponseEntity.ok(
+                    Map.of("notePrivate", savedNote != null ? savedNote : "")
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }
