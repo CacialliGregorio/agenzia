@@ -63,9 +63,22 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(
+        configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:3000",
-                "http://localhost:5173"
+                "http://localhost:5173",
+
+                // Frontend Vercel attuale
+                "https://agenzia-sooty.vercel.app",
+
+                // Dominio tecnico Vercel della deployment
+                "https://agenzia-omr2ub5wi-cacialligregorios-projects.vercel.app",
+
+                // Qualsiasi sottodominio Vercel del progetto
+                "https://*.vercel.app",
+
+                // Futuro dominio ufficiale
+                "https://ilmondoimmobiliare.eu",
+                "https://www.ilmondoimmobiliare.eu"
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
