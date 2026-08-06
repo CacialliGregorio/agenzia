@@ -1,5 +1,5 @@
 export default function WhatsAppTopLink() {
-    const numeroWhatsapp = '393294011384'
+    const numeroWhatsapp = '393784305750'
 
     const messaggio = encodeURIComponent(
         'Ciao, vorrei ricevere informazioni da Il Mondo Immobiliare.'

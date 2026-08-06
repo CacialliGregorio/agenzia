@@ -246,14 +246,14 @@ export default function Servizi() {
                   </a>
 
                   <a
-                      href="tel:+393294011384"
+                      href="tel:+393784305750"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
                   <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
                     <Smartphone className="w-5 h-5 text-white" />
                   </span>
 
-                    <span className="font-semibold">(+39) 329 4011384</span>
+                    <span className="font-semibold">(+39) 378 4305750</span>
                   </a>
 
                   <a
