@@ -4,7 +4,6 @@ import axiosInstance from '../api/axiosInstance'
 import {
   ArrowLeft,
   MapPin,
-  DollarSign,
   Ruler,
   Home as HomeIcon,
   Droplet,
@@ -365,7 +364,6 @@ export default function ImmobileDetail() {
 
                 <div>
                   <div className="flex items-center gap-2 text-4xl font-bold text-blue-600">
-                    <DollarSign className="w-8 h-8" />
                     <span>
                     {Number(immobile.prezzo).toLocaleString('it-IT')} €
                   </span>

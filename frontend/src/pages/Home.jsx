@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
 import {
   MapPin,
-  DollarSign,
   Home as HomeIcon,
   LogIn,
   Plus,
@@ -426,7 +425,6 @@ export default function Home() {
                           </div>
 
                           <div className="flex items-center gap-2 text-blue-600 font-bold">
-                            <DollarSign className="w-4 h-4" />
                             <span>
                         {Number(immobile.prezzo).toLocaleString('it-IT')} €
                       </span>
