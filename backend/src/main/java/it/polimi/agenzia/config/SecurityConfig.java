@@ -40,6 +40,10 @@ public class SecurityConfig {
                         // Login pubblico
                         .requestMatchers("/auth/**").permitAll()
 
+                        // Recensioni pubbliche
+                        .requestMatchers(HttpMethod.GET, "/recensioni/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/recensioni/**").permitAll()
+
                         // Lettura pubblica immobili
                         .requestMatchers(HttpMethod.GET, "/immobili/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/immobili/cerca").permitAll()
@@ -76,7 +80,7 @@ public class SecurityConfig {
                 // Qualsiasi sottodominio Vercel del progetto
                 "https://*.vercel.app",
 
-                // Futuro dominio ufficiale
+                // Dominio ufficiale
                 "https://ilmondoimmobiliare.eu",
                 "https://www.ilmondoimmobiliare.eu"
         ));

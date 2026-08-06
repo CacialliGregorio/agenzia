@@ -4,6 +4,7 @@ import Immobili from './pages/Immobili'
 import Contatti from './pages/Contatti'
 import Servizi from './pages/Servizi'
 import Agenzia from './pages/Agenzia'
+import Recensioni from './pages/Recensioni'
 import LoginPage from './pages/LoginPage'
 import ImmobileDetail from './pages/ImmobileDetail'
 import Dashboard from './pages/Dashboard'
@@ -27,6 +28,10 @@ export default function App() {
                 <Route path="/contatti" element={<Contatti />} />
                 <Route path="/servizi" element={<Servizi />} />
                 <Route path="/agenzia" element={<Agenzia />} />
+
+                {/* Pagina recensioni */}
+                <Route path="/recensioni" element={<Recensioni />} />
+
                 <Route path="/login" element={<LoginPage />} />
 
                 <Route

@@ -17,9 +17,11 @@ import {
   Smartphone,
   Mail,
   MapPinned,
+  Star,
 } from 'lucide-react'
 import SearchForm from '../components/SearchForm'
 import WhatsAppTopLink from '../components/WhatsAppTopLink'
+
 const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
@@ -115,6 +117,7 @@ export default function Home() {
 
   const handleSearchHome = (filtri) => {
     const params = new URLSearchParams()
+
     if (filtri.codiceRiferimento) {
       params.set('codiceRiferimento', filtri.codiceRiferimento)
     }
@@ -289,6 +292,13 @@ export default function Home() {
               >
                 Agenzia
               </Link>
+
+              <Link
+                  to="/recensioni"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+              >
+                Recensioni
+              </Link>
             </nav>
           </div>
         </header>
@@ -340,22 +350,22 @@ export default function Home() {
                     <div className="flex items-center gap-2">
                       <Ruler className="w-6 h-6 text-green-400" />
                       <span className="text-lg">
-                    {immobileHero.superficieMq || '-'} m²
-                  </span>
+                        {immobileHero.superficieMq || '-'} m²
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <BedDouble className="w-6 h-6 text-green-400" />
                       <span className="text-lg">
-                    {immobileHero.numeroLocali || '-'}
-                  </span>
+                        {immobileHero.numeroLocali || '-'}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <Bath className="w-6 h-6 text-green-400" />
                       <span className="text-lg">
-                    {immobileHero.numeroBagni || '-'}
-                  </span>
+                        {immobileHero.numeroBagni || '-'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -444,15 +454,15 @@ export default function Home() {
                           <div className="flex items-center gap-2 text-gray-600 mb-2">
                             <MapPin className="w-4 h-4" />
                             <span>
-                        {immobile.citta}
+                              {immobile.citta}
                               {immobile.provincia ? `, ${immobile.provincia}` : ''}
-                      </span>
+                            </span>
                           </div>
 
                           <div className="flex items-center gap-2 text-blue-600 font-bold">
                             <span>
-                        {Number(immobile.prezzo).toLocaleString('it-IT')} €
-                      </span>
+                              {Number(immobile.prezzo).toLocaleString('it-IT')} €
+                            </span>
                           </div>
 
                           <div className="text-sm text-gray-500 mt-3 pt-3 border-t">
@@ -465,6 +475,52 @@ export default function Home() {
                 })}
               </div>
           )}
+        </section>
+
+        {/* Sezione Recensioni */}
+        <section className="bg-gray-100 py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((stella) => (
+                        <Star
+                            key={stella}
+                            className="w-7 h-7 fill-yellow-400 text-yellow-400"
+                        />
+                    ))}
+                  </div>
+
+                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    Hai già lavorato con noi?
+                  </h2>
+
+                  <p className="text-gray-600 text-lg leading-8">
+                    Lascia una recensione anonima sulla tua esperienza con Il
+                    Mondo Immobiliare oppure leggi le recensioni lasciate dagli
+                    altri clienti.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row md:justify-end gap-4">
+                  <Link
+                      to="/recensioni"
+                      className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-lg font-bold hover:bg-yellow-500 transition text-center"
+                  >
+                    Lascia una recensione
+                  </Link>
+
+                  <Link
+                      to="/recensioni"
+                      className="bg-gray-900 text-white px-8 py-4 rounded-lg font-bold hover:bg-gray-800 transition text-center"
+                  >
+                    Vedi recensioni
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Footer verde con contatti */}
@@ -506,21 +562,21 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <MapPinned className="w-5 h-5 text-white" />
-                  </span>
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                      <MapPinned className="w-5 h-5 text-white" />
+                    </span>
                     <span className="font-semibold">
-                    Viale Trento e Trieste, 120
-                  </span>
+                      Viale Trento e Trieste, 120
+                    </span>
                   </a>
 
                   <a
                       href="tel:+39037232397"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <Phone className="w-5 h-5 text-white" />
-                  </span>
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                      <Phone className="w-5 h-5 text-white" />
+                    </span>
                     <span className="font-semibold">(+39) 0372 32397</span>
                   </a>
 
@@ -528,9 +584,9 @@ export default function Home() {
                       href="tel:+393784305750"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <Smartphone className="w-5 h-5 text-white" />
-                  </span>
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                      <Smartphone className="w-5 h-5 text-white" />
+                    </span>
                     <span className="font-semibold">(+39) 378 4305750</span>
                   </a>
 
@@ -538,12 +594,12 @@ export default function Home() {
                       href="mailto:agenzia@ilmondoimmobiliare.eu"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <Mail className="w-5 h-5 text-white" />
-                  </span>
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                      <Mail className="w-5 h-5 text-white" />
+                    </span>
                     <span className="font-semibold break-all">
-                    agenzia@ilmondoimmobiliare.eu
-                  </span>
+                      agenzia@ilmondoimmobiliare.eu
+                    </span>
                   </a>
                 </div>
               </div>

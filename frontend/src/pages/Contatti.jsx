@@ -182,6 +182,12 @@ ${formData.messaggio}
               >
                 Agenzia
               </Link>
+              <Link
+                  to="/recensioni"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+              >
+                Recensioni
+              </Link>
             </nav>
           </div>
         </header>
