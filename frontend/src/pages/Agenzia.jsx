@@ -79,7 +79,18 @@ export default function Agenzia() {
         <header className="bg-white shadow-sm sticky top-0 z-20">
           <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <img src="/logo.jpeg" alt="Agenzia Logo" className="h-12 w-auto" />
+              <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="cursor-pointer"
+                  aria-label="Torna in cima alla pagina"
+              >
+                <img
+                    src="/logo.jpeg"
+                    alt="Il Mondo Immobiliare"
+                    className="h-16 w-auto"
+                />
+              </button>
             </div>
 
             <nav className="flex gap-6">
