@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import java.math.BigDecimal;
 
@@ -27,6 +28,10 @@ public class ImmobileController {
             @RequestParam(defaultValue = "12") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(immobileService.getImmobiliDisponibili(pageable));
+    }
+    @GetMapping("/slide")
+    public ResponseEntity<List<ImmobileDTO>> getImmobiliSlide() {
+        return ResponseEntity.ok(immobileService.getImmobiliSlide());
     }
     
     @GetMapping("/cerca")

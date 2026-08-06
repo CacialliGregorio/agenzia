@@ -40,6 +40,8 @@ public class Immobile {
     private String numeroCivico;
     @Column(name = "codice_riferimento")
     private String codiceRiferimento;
+    @Column(name = "mostra_in_slide")
+    private Boolean mostraInSlide;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String tipo;

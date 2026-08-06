@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../api/axiosInstance'
-import { LogOut, Plus, Edit, Trash2, StickyNote, Save } from 'lucide-react'
+import {
+  LogOut,
+  Plus,
+  Edit,
+  Trash2,
+  StickyNote,
+  Save,
+  Image,
+} from 'lucide-react'
 import ImmobileForm from '../components/ImmobileForm'
 
 export default function Dashboard() {
@@ -14,6 +22,10 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState(null)
   const [editingData, setEditingData] = useState(null)
   const [saving, setSaving] = useState(false)
+
+  const [showSlideManager, setShowSlideManager] = useState(false)
+  const [slideCodici, setSlideCodici] = useState(['', '', ''])
+  const [slideSaving, setSlideSaving] = useState(false)
 
   const [selectedNoteId, setSelectedNoteId] = useState(null)
   const [selectedNoteImmobile, setSelectedNoteImmobile] = useState(null)
@@ -53,12 +65,17 @@ export default function Dashboard() {
     navigate('/')
   }
 
-  const handleCreate = () => {
-    setEditingId(null)
-    setEditingData(null)
+  const resetSezioniAperte = () => {
     setSelectedNoteId(null)
     setSelectedNoteImmobile(null)
     setNoteText('')
+    setShowSlideManager(false)
+  }
+
+  const handleCreate = () => {
+    resetSezioniAperte()
+    setEditingId(null)
+    setEditingData(null)
     setShowForm(true)
   }
 
@@ -71,6 +88,7 @@ export default function Dashboard() {
       setSelectedNoteId(null)
       setSelectedNoteImmobile(null)
       setNoteText('')
+      setShowSlideManager(false)
       setShowForm(true)
 
       setTimeout(() => {
@@ -154,10 +172,97 @@ export default function Dashboard() {
     }
   }
 
+  const handleOpenSlideManager = async () => {
+    setShowForm(false)
+    setEditingId(null)
+    setEditingData(null)
+    setSelectedNoteId(null)
+    setSelectedNoteImmobile(null)
+    setNoteText('')
+    setShowSlideManager(true)
+
+    try {
+      const response = await axiosInstance.get('/admin/immobili/slide')
+
+      const codici = (response.data || []).map(
+          (immobile) => immobile.codiceRiferimento || ''
+      )
+
+      setSlideCodici([
+        codici[0] || '',
+        codici[1] || '',
+        codici[2] || '',
+      ])
+
+      setTimeout(() => {
+        const sezione = document.getElementById('slide-manager-section')
+
+        if (sezione) {
+          sezione.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          })
+        }
+      }, 100)
+    } catch (error) {
+      console.error('Errore caricamento slide:', error)
+      alert('Errore nel caricamento degli immobili scelti per la slide')
+    }
+  }
+
+  const handleChangeSlideCodice = (index, value) => {
+    setSlideCodici((codiciCorrenti) =>
+        codiciCorrenti.map((codice, posizione) =>
+            posizione === index ? value : codice
+        )
+    )
+  }
+
+  const handleSaveSlide = async () => {
+    const codiciPuliti = slideCodici
+        .map((codice) => codice.trim())
+        .filter(Boolean)
+
+    if (codiciPuliti.length !== 3) {
+      alert('Inserisci esattamente 3 codici riferimento.')
+      return
+    }
+
+    if (new Set(codiciPuliti).size !== 3) {
+      alert('I 3 codici riferimento devono essere diversi tra loro.')
+      return
+    }
+
+    setSlideSaving(true)
+
+    try {
+      await axiosInstance.put('/admin/immobili/slide', {
+        codiciRiferimento: codiciPuliti,
+      })
+
+      alert('Immobili della slide aggiornati correttamente')
+      setShowSlideManager(false)
+      await fetchMyImmobili()
+    } catch (error) {
+      console.error('Errore salvataggio slide:', error)
+      alert(
+          'Errore: controlla che i 3 codici riferimento esistano e che gli immobili siano disponibili.'
+      )
+    } finally {
+      setSlideSaving(false)
+    }
+  }
+
+  const handleCloseSlideManager = () => {
+    setShowSlideManager(false)
+    setSlideCodici(['', '', ''])
+  }
+
   const handleOpenNote = async (immobile) => {
     setShowForm(false)
     setEditingId(null)
     setEditingData(null)
+    setShowSlideManager(false)
 
     setSelectedNoteId(immobile.id)
     setSelectedNoteImmobile(immobile)
@@ -287,11 +392,23 @@ export default function Dashboard() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <img
-                    src="/logo.jpeg"
-                    alt="Agenzia Logo"
-                    className="h-12 w-auto mb-3"
-                />
+                <button
+                    type="button"
+                    onClick={() =>
+                        window.scrollTo({
+                          top: 0,
+                          behavior: 'smooth',
+                        })
+                    }
+                    className="cursor-pointer"
+                    aria-label="Torna in cima alla pagina"
+                >
+                  <img
+                      src="/logo.jpeg"
+                      alt="Agenzia Logo"
+                      className="h-12 w-auto mb-3"
+                  />
+                </button>
 
                 <p className="text-gray-600">
                   Benvenuto, {userInfo.nome} {userInfo.cognome}
@@ -362,16 +479,101 @@ export default function Dashboard() {
               </div>
           )}
 
-          {/* Create Button */}
+          {/* Pulsanti principali */}
           {!showForm && (
-              <button
-                  type="button"
-                  onClick={handleCreate}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 mb-6 font-semibold"
+              <div className="flex flex-wrap gap-3 mb-6">
+                <button
+                    type="button"
+                    onClick={handleCreate}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 font-semibold"
+                >
+                  <Plus className="w-5 h-5" />
+                  Nuovo Annuncio
+                </button>
+
+                <button
+                    type="button"
+                    onClick={handleOpenSlideManager}
+                    className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 font-semibold"
+                >
+                  <Image className="w-5 h-5" />
+                  Gestisci Slide
+                </button>
+              </div>
+          )}
+
+          {/* Gestione slide */}
+          {showSlideManager && (
+              <div
+                  id="slide-manager-section"
+                  className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-green-200"
               >
-                <Plus className="w-5 h-5" />
-                Nuovo Annuncio
-              </button>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Gestisci immobili nella slide
+                    </h2>
+
+                    <p className="text-gray-600 mt-1">
+                      Inserisci i 3 codici riferimento degli immobili disponibili da
+                      mostrare nella slide della Home.
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-2">
+                      Usa il codice riferimento che hai inserito nell'annuncio, ad
+                      esempio 1807, 1813 o 1785. Non usare l'ID tecnico del database.
+                    </p>
+                  </div>
+
+                  <button
+                      type="button"
+                      onClick={handleCloseSlideManager}
+                      className="text-gray-500 hover:text-gray-800 font-semibold"
+                  >
+                    Chiudi
+                  </button>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  {[0, 1, 2].map((index) => (
+                      <div key={index}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Codice riferimento slide {index + 1}
+                        </label>
+
+                        <input
+                            type="text"
+                            value={slideCodici[index]}
+                            onChange={(e) =>
+                                handleChangeSlideCodice(index, e.target.value)
+                            }
+                            placeholder="Es: 1807"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                        />
+                      </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-4 mt-6">
+                  <button
+                      type="button"
+                      onClick={handleSaveSlide}
+                      disabled={slideSaving}
+                      className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold flex items-center gap-2 disabled:bg-gray-300"
+                  >
+                    <Save className="w-5 h-5" />
+                    {slideSaving ? 'Salvataggio...' : 'Salva slide'}
+                  </button>
+
+                  <button
+                      type="button"
+                      onClick={handleCloseSlideManager}
+                      className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 font-semibold"
+                  >
+                    Annulla
+                  </button>
+                </div>
+              </div>
           )}
 
           {/* Annunci List */}
@@ -425,6 +627,12 @@ export default function Dashboard() {
                           >
                             <td className="px-4 py-3 text-gray-800 font-semibold">
                               {immobile.titolo}
+
+                              {immobile.mostraInSlide && (
+                                  <div className="text-xs text-green-700 mt-1 font-semibold">
+                                    In slide Home
+                                  </div>
+                              )}
                             </td>
 
                             <td className="px-4 py-3 text-gray-600">
@@ -498,7 +706,8 @@ export default function Dashboard() {
 
                     <p className="text-gray-600 mt-1">
                       {selectedNoteImmobile?.titolo} — Rif.{' '}
-                      {selectedNoteImmobile?.id}
+                      {selectedNoteImmobile?.codiceRiferimento ||
+                          selectedNoteImmobile?.id}
                     </p>
                   </div>
 

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import java.util.Map;
-
+import java.util.List;
 @RestController
 @RequestMapping("/admin/immobili")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
@@ -66,6 +66,30 @@ public class AdminImmobileController {
             );
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+    @GetMapping("/slide")
+    public ResponseEntity<List<ImmobileDTO>> getImmobiliSlideAdmin() {
+        return ResponseEntity.ok(immobileService.getImmobiliSlide());
+    }
+
+    @PutMapping("/slide")
+    public ResponseEntity<List<ImmobileDTO>> aggiornaImmobiliSlide(
+            @RequestBody Map<String, List<String>> body,
+            Authentication authentication) {
+        try {
+            Long userId = (Long) authentication.getDetails();
+
+            List<String> codiciRiferimento = body.getOrDefault(
+                    "codiciRiferimento",
+                    List.of()
+            );
+
+            return ResponseEntity.ok(
+                    immobileService.aggiornaImmobiliSlide(codiciRiferimento, userId)
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

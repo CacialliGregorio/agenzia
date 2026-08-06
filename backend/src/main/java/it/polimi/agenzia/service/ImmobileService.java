@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.ArrayList;
 
 import java.math.BigDecimal;
 
@@ -39,6 +41,66 @@ public class ImmobileService {
     public Page<ImmobileDTO> getTuttiImmobiliDashboard(Pageable pageable) {
         return immobileRepository.findAll(pageable)
                 .map(this::convertToDTO);
+    }
+    public List<ImmobileDTO> getImmobiliSlide() {
+        List<Immobile> immobiliSlide =
+                immobileRepository.findByMostraInSlideTrueAndStatoOrderByIdAsc(
+                        Immobile.Stato.DISPONIBILE
+                );
+
+        return immobiliSlide.stream()
+                .limit(3)
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    @Transactional
+    public List<ImmobileDTO> aggiornaImmobiliSlide(List<String> codiciRiferimento, Long userId) {
+        User utenteCorrente = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+
+        if (!isAdmin(utenteCorrente)) {
+            throw new RuntimeException("Non autorizzato a modificare la slide");
+        }
+
+        List<String> codiciPuliti = codiciRiferimento == null
+                ? new ArrayList<>()
+                : codiciRiferimento.stream()
+                .filter(codice -> codice != null && !codice.isBlank())
+                .map(String::trim)
+                .distinct()
+                .limit(3)
+                .toList();
+
+        if (codiciPuliti.size() != 3) {
+            throw new RuntimeException("Devi inserire esattamente 3 codici riferimento");
+        }
+
+        List<Immobile> selezionati = immobileRepository.findByCodiceRiferimentoIn(codiciPuliti);
+
+        if (selezionati.size() != 3) {
+            throw new RuntimeException("Uno o più codici riferimento non esistono");
+        }
+
+        List<Immobile> tutti = immobileRepository.findAll();
+
+        for (Immobile immobile : tutti) {
+            immobile.setMostraInSlide(false);
+        }
+
+        for (Immobile immobile : selezionati) {
+            if (immobile.getStato() != Immobile.Stato.DISPONIBILE) {
+                throw new RuntimeException("Gli immobili in slide devono essere disponibili");
+            }
+
+            immobile.setMostraInSlide(true);
+        }
+
+        immobileRepository.saveAll(tutti);
+
+        return selezionati.stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 
     public Page<ImmobileDTO> cercaImmobili(String citta,
@@ -87,6 +149,7 @@ public class ImmobileService {
                 .via(dto.getVia())
                 .numeroCivico(dto.getNumeroCivico())
                 .codiceRiferimento(dto.getCodiceRiferimento())
+                .mostraInSlide(Boolean.TRUE.equals(dto.getMostraInSlide()))
                 .ubicazione(parseUbicazione(dto.getUbicazione()))
                 .destinazione(parseDestinazione(dto.getDestinazione()))
                 .tipo(dto.getTipo())
@@ -142,6 +205,7 @@ public class ImmobileService {
         immobile.setVia(dto.getVia());
         immobile.setNumeroCivico(dto.getNumeroCivico());
         immobile.setCodiceRiferimento(dto.getCodiceRiferimento());
+        immobile.setMostraInSlide(Boolean.TRUE.equals(dto.getMostraInSlide()));
         immobile.setUbicazione(parseUbicazione(dto.getUbicazione()));
         immobile.setDestinazione(parseDestinazione(dto.getDestinazione()));
         immobile.setTipo(dto.getTipo());
@@ -286,6 +350,7 @@ public class ImmobileService {
                 .via(immobile.getVia())
                 .numeroCivico(immobile.getNumeroCivico())
                 .codiceRiferimento(immobile.getCodiceRiferimento())
+                .mostraInSlide(immobile.getMostraInSlide())
                 .ubicazione(immobile.getUbicazione() != null ? immobile.getUbicazione().toString() : null)
                 .destinazione(immobile.getDestinazione() != null ? immobile.getDestinazione().toString() : null)
                 .tipo(immobile.getTipo())

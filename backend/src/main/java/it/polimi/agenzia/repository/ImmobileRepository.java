@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 import java.math.BigDecimal;
 
@@ -14,6 +15,8 @@ import java.math.BigDecimal;
 public interface ImmobileRepository extends JpaRepository<Immobile, Long> {
 
     Page<Immobile> findByStato(Immobile.Stato stato, Pageable pageable);
+    List<Immobile> findByMostraInSlideTrueAndStatoOrderByIdAsc(Immobile.Stato stato);
+    List<Immobile> findByCodiceRiferimentoIn(List<String> codiciRiferimento);
 
     Page<Immobile> findByCittaContainingIgnoreCase(String citta, Pageable pageable);
 

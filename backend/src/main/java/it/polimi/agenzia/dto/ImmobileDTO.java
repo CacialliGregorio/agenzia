@@ -23,6 +23,7 @@ public class ImmobileDTO {
     private String via;
     private String numeroCivico;
     private String codiceRiferimento;
+    private Boolean mostraInSlide;
     private String ubicazione;
     private String destinazione;
     private String tipo;

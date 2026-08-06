@@ -65,6 +65,20 @@ export default function Home() {
 
       setImmobili(immobiliDisponibili.slice(0, 6))
 
+      try {
+        const responseSlide = await axiosInstance.get('/immobili/slide')
+
+        const immobiliSlide = responseSlide.data || []
+
+        if (immobiliSlide.length > 0) {
+          setHeroImmobili(immobiliSlide)
+          setHeroIndex(0)
+          return
+        }
+      } catch (error) {
+        console.error('Errore nel caricamento immobili slide:', error)
+      }
+
       const immobiliConFoto = immobiliDisponibili.filter(
           (immobile) => immobile.fotoUrl && immobile.fotoUrl.length > 0
       )
