@@ -493,7 +493,7 @@ export default function Home() {
                   </div>
 
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    Hai già lavorato con noi?
+                    Hai già avuto a che fare con noi?
                   </h2>
 
                   <p className="text-gray-600 text-lg leading-8">
