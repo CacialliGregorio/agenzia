@@ -200,8 +200,8 @@ public class FotoService {
 
     /*
      * Metodo usato quando viene eliminato un intero annuncio.
-     * Prima elimina tutte le immagini fisiche da Cloudflare R2 o dal locale,
-     * poi elimina anche i record dalla tabella foto.
+     * Prima prova a eliminare tutte le immagini fisiche da Cloudflare R2 o dal locale.
+     * Se una foto fisica non viene eliminata, l'annuncio viene comunque eliminato dal database.
      */
     public void eliminaTutteLeFotoImmobile(Long immobileId) {
         List<Foto> fotoImmobile =
@@ -213,8 +213,20 @@ public class FotoService {
             try {
                 eliminaFileFoto(immobileId, foto);
             } catch (Exception e) {
+                /*
+                 * Non blocchiamo l'eliminazione dell'annuncio se Cloudflare R2
+                 * o il filesystem non riescono a eliminare fisicamente una foto.
+                 * L'immobile e i record foto devono comunque essere rimossi dal database.
+                 */
+                System.out.println(
+                        "Impossibile eliminare fisicamente la foto " +
+                                foto.getId() +
+                                " dell'immobile " +
+                                immobileId +
+                                ". Continuo comunque con l'eliminazione dal database."
+                );
+
                 e.printStackTrace();
-                throw new RuntimeException("Errore eliminando una foto dell'immobile " + immobileId);
             }
         }
 
