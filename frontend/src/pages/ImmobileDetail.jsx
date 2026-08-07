@@ -8,10 +8,10 @@ import {
   Home as HomeIcon,
   Droplet,
   Zap,
-  LogIn,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import PublicLayout from '../components/PublicLayout'
 
 const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
@@ -174,9 +174,11 @@ export default function ImmobileDetail() {
 
   if (loading) {
     return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-gray-600">Caricamento...</p>
-        </div>
+        <PublicLayout activePage="immobili">
+          <div className="min-h-[400px] flex items-center justify-center">
+            <p className="text-gray-600">Caricamento...</p>
+          </div>
+        </PublicLayout>
     )
   }
 
@@ -185,113 +187,29 @@ export default function ImmobileDetail() {
   }
 
   return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Top Bar */}
-        <div className="bg-gray-900 text-white text-sm py-2">
-          <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
-            <div className="flex gap-6">
-              <a href="tel:03723397" className="hover:text-gray-300">
-                📞 0372 32397
-              </a>
+      <PublicLayout activePage="immobili">
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <button
+              type="button"
+              onClick={() => navigate('/immobili')}
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Torna agli annunci
+          </button>
 
-              <a
-                  href="mailto:agenzia@ilmondoimmobiliare.eu"
-                  className="hover:text-gray-300"
-              >
-                ✉️ agenzia@ilmondoimmobiliare.eu
-              </a>
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                  type="button"
-                  onClick={() => navigate('/login')}
-                  className="hover:text-gray-300 flex items-center gap-1"
-              >
-                <LogIn className="w-4 h-4" />
-                Area Dipendenti
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <div className="mb-4">
-              <button
-                  type="button"
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="cursor-pointer"
-                  aria-label="Torna in cima alla pagina"
-              >
-                <img
-                    src="/logo.jpeg"
-                    alt="Il Mondo Immobiliare"
-                    className="h-16 w-auto"
-                />
-              </button>
-            </div>
-
-            <nav className="flex gap-6 mb-4">
-              <Link
-                  to="/"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Home
-              </Link>
-
-              <Link to="/immobili" className="text-blue-600 font-medium">
-                Immobili
-              </Link>
-
-              <Link
-                  to="/contatti"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Contatti
-              </Link>
-
-              <Link
-                  to="/servizi"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Servizi
-              </Link>
-
-              <Link
-                  to="/agenzia"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Agenzia
-              </Link>
-            </nav>
-
-            <button
-                type="button"
-                onClick={() => navigate('/immobili')}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Torna agli annunci
-            </button>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Images Section */}
-            <div className="relative bg-gray-100 min-h-[650px] flex items-center justify-center overflow-hidden">
+            <div className="relative bg-gray-100 min-h-[360px] md:min-h-[650px] flex items-center justify-center overflow-hidden">
               {fotoPrincipale ? (
                   <img
                       src={fotoPrincipale}
                       alt={immobile.titolo}
-                      className="w-full h-full max-h-[650px] object-contain"
+                      className="w-full h-full max-h-[420px] md:max-h-[650px] object-contain"
                   />
               ) : (
-                  <div className="bg-gradient-to-r from-blue-400 to-indigo-400 w-full min-h-[650px] flex items-center justify-center">
-                    <HomeIcon className="w-24 h-24 text-white" />
+                  <div className="bg-gradient-to-r from-blue-400 to-indigo-400 w-full min-h-[360px] md:min-h-[650px] flex items-center justify-center">
+                    <HomeIcon className="w-20 h-20 md:w-24 md:h-24 text-white" />
                   </div>
               )}
 
@@ -300,17 +218,17 @@ export default function ImmobileDetail() {
                     <button
                         type="button"
                         onClick={vaiFotoPrecedente}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70"
+                        className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70"
                     >
-                      <ChevronLeft className="w-6 h-6" />
+                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
 
                     <button
                         type="button"
                         onClick={vaiFotoSuccessiva}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70"
+                        className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 hover:bg-black/70"
                     >
-                      <ChevronRight className="w-6 h-6" />
+                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
 
                     <div className="absolute bottom-4 right-4 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
@@ -347,25 +265,25 @@ export default function ImmobileDetail() {
             )}
 
             {/* Details */}
-            <div className="p-8">
-              <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            <div className="p-5 md:p-8">
+              <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4">
                 {immobile.titolo}
               </h1>
 
               {/* Location and Price */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8">
                 <div>
                   <button
                       type="button"
                       onClick={vaiAllaMappa}
-                      className="flex items-center gap-2 text-gray-600 mb-4 text-lg hover:text-blue-600 transition text-left"
+                      className="flex items-center gap-2 text-gray-600 mb-4 text-base md:text-lg hover:text-blue-600 transition text-left"
                   >
-                    <MapPin className="w-5 h-5 text-red-500" />
+                    <MapPin className="w-5 h-5 text-red-500 shrink-0" />
 
                     <span className="underline-offset-4 hover:underline">
-                    {immobile.via || '-'}
+                      {immobile.via || '-'}
                       {immobile.numeroCivico ? `, ${immobile.numeroCivico}` : ''}
-                  </span>
+                    </span>
                   </button>
 
                   <p className="text-gray-600 mb-2">
@@ -374,10 +292,10 @@ export default function ImmobileDetail() {
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2 text-4xl font-bold text-blue-600">
+                  <div className="flex items-center gap-2 text-3xl md:text-4xl font-bold text-blue-600">
                     <span>
-                    {Number(immobile.prezzo).toLocaleString('it-IT')} €
-                  </span>
+                      {Number(immobile.prezzo).toLocaleString('it-IT')} €
+                    </span>
                   </div>
                 </div>
               </div>
@@ -389,6 +307,7 @@ export default function ImmobileDetail() {
                     <HomeIcon className="w-5 h-5" />
                     <span className="text-sm">Locali</span>
                   </div>
+
                   <p className="text-2xl font-bold text-gray-800">
                     {immobile.numeroLocali || '-'}
                   </p>
@@ -399,6 +318,7 @@ export default function ImmobileDetail() {
                     <Droplet className="w-5 h-5" />
                     <span className="text-sm">Bagni</span>
                   </div>
+
                   <p className="text-2xl font-bold text-gray-800">
                     {immobile.numeroBagni || '-'}
                   </p>
@@ -409,6 +329,7 @@ export default function ImmobileDetail() {
                     <HomeIcon className="w-5 h-5" />
                     <span className="text-sm">Camere</span>
                   </div>
+
                   <p className="text-2xl font-bold text-gray-800">
                     {immobile.camereDaLetto || '-'}
                   </p>
@@ -419,6 +340,7 @@ export default function ImmobileDetail() {
                     <Ruler className="w-5 h-5" />
                     <span className="text-sm">Superficie</span>
                   </div>
+
                   <p className="text-2xl font-bold text-gray-800">
                     {immobile.superficieMq ? `${immobile.superficieMq} m²` : '-'}
                   </p>
@@ -429,6 +351,7 @@ export default function ImmobileDetail() {
                     <Zap className="w-5 h-5" />
                     <span className="text-sm">Piano</span>
                   </div>
+
                   <p className="text-2xl font-bold text-gray-800">
                     {immobile.piano !== null && immobile.piano !== undefined
                         ? `${immobile.piano}°`
@@ -438,7 +361,7 @@ export default function ImmobileDetail() {
               </div>
 
               {/* Additional Info */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div>
                   <p className="text-gray-600 text-sm mb-1">Ubicazione</p>
                   <p className="font-semibold text-gray-800">
@@ -524,7 +447,7 @@ export default function ImmobileDetail() {
                   </p>
                 </div>
 
-                <div className="w-full h-[420px] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                <div className="w-full h-[320px] md:h-[420px] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
                   <iframe
                       title={`Mappa ${immobile.titolo}`}
                       src={mapsEmbedUrl}
@@ -538,7 +461,7 @@ export default function ImmobileDetail() {
               </div>
 
               {/* Contact Section */}
-              <div className="bg-blue-50 p-6 rounded-lg">
+              <div className="bg-blue-50 p-5 md:p-6 rounded-lg">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">
                   Interessato?
                 </h3>
@@ -550,14 +473,14 @@ export default function ImmobileDetail() {
 
                 <Link
                     to="/contatti"
-                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold text-center"
                 >
                   Contatta l'Agenzia
                 </Link>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </main>
+      </PublicLayout>
   )
 }

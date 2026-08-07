@@ -4,23 +4,15 @@ import axiosInstance from '../api/axiosInstance'
 import {
   MapPin,
   Home as HomeIcon,
-  LogIn,
-  Plus,
-  Facebook,
-  Instagram,
   ChevronLeft,
   ChevronRight,
   Ruler,
   BedDouble,
   Bath,
-  Phone,
-  Smartphone,
-  Mail,
-  MapPinned,
   Star,
 } from 'lucide-react'
 import SearchForm from '../components/SearchForm'
-import WhatsAppTopLink from '../components/WhatsAppTopLink'
+import PublicLayout from '../components/PublicLayout'
 
 const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
@@ -32,7 +24,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   const navigate = useNavigate()
-  const token = localStorage.getItem('token')
 
   useEffect(() => {
     fetchImmobili()
@@ -181,128 +172,7 @@ export default function Home() {
   const fotoHero = immobileHero ? getFotoUrl(immobileHero) : null
 
   return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Top Bar */}
-        <div className="bg-gray-900 text-white text-sm py-2">
-          <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <WhatsAppTopLink />
-
-              <a
-                  href="https://www.facebook.com/ILMONDOIMMOBILIARECR"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-blue-100 transition"
-              >
-                <Facebook className="w-5 h-5 text-blue-600" />
-              </a>
-
-              <a
-                  href="https://www.instagram.com/ilmondoimmobiliare/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-pink-100 transition"
-              >
-                <Instagram className="w-5 h-5 text-pink-500" />
-              </a>
-
-              <span className="mx-2 h-5 w-px bg-gray-400 inline-block"></span>
-
-              <a href="tel:03723397" className="hover:text-gray-300">
-                📞 0372 32397
-              </a>
-
-              <a
-                  href="mailto:agenzia@ilmondoimmobiliare.eu"
-                  className="hover:text-gray-300"
-              >
-                ✉️ agenzia@ilmondoimmobiliare.eu
-              </a>
-            </div>
-
-            <div className="flex gap-4">
-              {token ? (
-                  <Link
-                      to="/dashboard"
-                      className="hover:text-gray-300 flex items-center gap-1"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Dashboard
-                  </Link>
-              ) : (
-                  <button
-                      onClick={() => navigate('/login')}
-                      className="hover:text-gray-300 flex items-center gap-1"
-                  >
-                    <LogIn className="w-4 h-4" />
-                    Area Dipendenti
-                  </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-20">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <button
-                  type="button"
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="cursor-pointer"
-                  aria-label="Torna in cima alla pagina"
-              >
-                <img
-                    src="/logo.jpeg"
-                    alt="Il Mondo Immobiliare"
-                    className="h-16 w-auto"
-                />
-              </button>
-            </div>
-
-            <nav className="flex gap-6">
-              <Link to="/" className="text-blue-600 font-medium">
-                Home
-              </Link>
-
-              <Link
-                  to="/immobili"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Immobili
-              </Link>
-
-              <Link
-                  to="/contatti"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Contatti
-              </Link>
-
-              <Link
-                  to="/servizi"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Servizi
-              </Link>
-
-              <Link
-                  to="/agenzia"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Agenzia
-              </Link>
-
-              <Link
-                  to="/recensioni"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Recensioni
-              </Link>
-            </nav>
-          </div>
-        </header>
-
+      <PublicLayout activePage="home">
         {/* Hero Slider annunci */}
         <section className="relative h-[430px] md:h-[560px] bg-gray-900 overflow-hidden">
           {immobileHero ? (
@@ -522,132 +392,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Footer verde con contatti */}
-        <section className="bg-green-500 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-12 md:py-14">
-            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-              {/* Colonna descrizione */}
-              <div>
-                <h2 className="text-2xl font-bold mb-6">
-                  Il Mondo Immobiliare
-                </h2>
-
-                <p className="text-base md:text-lg leading-8">
-                  L'agenzia “Il Mondo Immobiliare” offre alla propria clientela un
-                  insieme di servizi integrati in grado di soddisfare tutte le
-                  esigenze di chi compra, vende, affitta o ricerca un immobile.
-                </p>
-              </div>
-
-              {/* Colonna FIMAA */}
-              <div className="text-center">
-                <h2 className="text-2xl font-bold mb-6">F.I.M.A.A.</h2>
-
-                <img
-                    src="/fimaa.jpg"
-                    alt="F.I.M.A.A."
-                    className="mx-auto max-h-32 w-auto bg-white p-2 rounded"
-                />
-              </div>
-
-              {/* Colonna contatti */}
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Contatti</h2>
-
-                <div className="space-y-3">
-                  <a
-                      href="https://www.google.com/maps/search/?api=1&query=Viale+Trento+e+Trieste+120+Cremona"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
-                      <MapPinned className="w-5 h-5 text-white" />
-                    </span>
-                    <span className="font-semibold">
-                      Viale Trento e Trieste, 120
-                    </span>
-                  </a>
-
-                  <a
-                      href="tel:+39037232397"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
-                      <Phone className="w-5 h-5 text-white" />
-                    </span>
-                    <span className="font-semibold">(+39) 0372 32397</span>
-                  </a>
-
-                  <a
-                      href="tel:+393784305750"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
-                      <Smartphone className="w-5 h-5 text-white" />
-                    </span>
-                    <span className="font-semibold">(+39) 378 4305750</span>
-                  </a>
-
-                  <a
-                      href="mailto:agenzia@ilmondoimmobiliare.eu"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
-                      <Mail className="w-5 h-5 text-white" />
-                    </span>
-                    <span className="font-semibold break-all">
-                      agenzia@ilmondoimmobiliare.eu
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Barra finale come sito originale */}
-        <footer className="bg-green-900 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
-              <div className="flex flex-col items-start gap-1">
-                <a
-                    href="https://www.iubenda.com/privacy-policy/51205261"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
-                >
-                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                     i
-                    </span>
-                  Privacy Policy
-                </a>
-
-                <a
-                    href="https://www.iubenda.com/privacy-policy/51205261/cookie-policy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
-                >
-                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                       i
-                    </span>
-                  Cookie Policy
-                </a>
-              </div>
-
-              {/* Logo grande a destra */}
-              <div className="w-full md:w-1/2 flex justify-center md:justify-end">
-                <img
-                    src="/logo.jpeg"
-                    alt="Il Mondo Immobiliare"
-                    className="h-16 md:h-20 w-auto"
-                />
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
+      </PublicLayout>
   )
 }

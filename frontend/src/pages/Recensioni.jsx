@@ -1,17 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import {
-    Facebook,
-    Instagram,
-    LogIn,
-    Mail,
-    MapPinned,
-    Phone,
-    Smartphone,
     Star,
 } from 'lucide-react'
 import axiosInstance from '../api/axiosInstance'
-import WhatsAppTopLink from '../components/WhatsAppTopLink'
+import PublicLayout from '../components/PublicLayout'
 
 export default function Recensioni() {
     const [recensioni, setRecensioni] = useState([])
@@ -135,112 +127,26 @@ export default function Recensioni() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Top Bar */}
-            <div className="bg-gray-900 text-white text-sm py-2">
-                <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <WhatsAppTopLink />
-
-                        <a
-                            href="https://www.facebook.com/people/Il-Mondo-Immobiliare-Agenzia-Immobiliare/100063610220386/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-white text-blue-600 p-2 rounded-lg hover:bg-gray-100 transition"
-                        >
-                            <Facebook className="w-5 h-5" />
-                        </a>
-
-                        <a
-                            href="https://www.instagram.com/il_mondo_immobiliare/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-white text-pink-600 p-2 rounded-lg hover:bg-gray-100 transition"
-                        >
-                            <Instagram className="w-5 h-5" />
-                        </a>
-
-                        <span className="text-gray-400">|</span>
-
-                        <a href="tel:03723397" className="hover:text-gray-300">
-                            📞 0372 32397
-                        </a>
-
-                        <a
-                            href="mailto:agenzia@ilmondoimmobiliare.eu"
-                            className="hover:text-gray-300"
-                        >
-                            ✉️ agenzia@ilmondoimmobiliare.eu
-                        </a>
-                    </div>
-
-                    <Link
-                        to="/login"
-                        className="hover:text-gray-300 flex items-center gap-1"
-                    >
-                        <LogIn className="w-4 h-4" />
-                        Area Dipendenti
-                    </Link>
-                </div>
-            </div>
-
-            {/* Header */}
-            <header className="bg-white shadow-md sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                    <button
-                        type="button"
-                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        className="cursor-pointer"
-                        aria-label="Torna in cima alla pagina"
-                    >
-                        <img
-                            src="/logo.jpeg"
-                            alt="Il Mondo Immobiliare"
-                            className="h-16 w-auto"
-                        />
-                    </button>
-
-                    <nav className="hidden md:flex gap-8">
-                        <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
-                            Home
-                        </Link>
-                        <Link to="/immobili" className="text-gray-700 hover:text-blue-600 font-medium">
-                            Immobili
-                        </Link>
-                        <Link to="/contatti" className="text-gray-700 hover:text-blue-600 font-medium">
-                            Contatti
-                        </Link>
-                        <Link to="/servizi" className="text-gray-700 hover:text-blue-600 font-medium">
-                            Servizi
-                        </Link>
-                        <Link to="/agenzia" className="text-gray-700 hover:text-blue-600 font-medium">
-                            Agenzia
-                        </Link>
-                        <Link to="/recensioni" className="text-blue-600 font-semibold">
-                            Recensioni
-                        </Link>
-                    </nav>
-                </div>
-            </header>
-
+        <PublicLayout activePage="recensioni">
             {/* Hero */}
-            <section className="bg-gray-900 text-white py-20">
+            <section className="bg-gray-900 text-white py-14 md:py-20">
                 <div className="max-w-7xl mx-auto px-4 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">
                         Recensioni
                     </h1>
 
-                    <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                        Lascia una recensione anonima sulla tua esperienza con Il Mondo Immobiliare.
+                    <p className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto">
+                        Lascia una recensione anonima sulla tua esperienza con Il Mondo
+                        Immobiliare.
                     </p>
                 </div>
             </section>
 
             {/* Contenuto */}
-            <main className="max-w-7xl mx-auto px-4 py-16">
-                <div className="grid lg:grid-cols-2 gap-10">
+            <main className="max-w-7xl mx-auto px-4 py-10 md:py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
                     {/* Form recensione */}
-                    <section className="bg-white rounded-xl shadow-lg p-8">
+                    <section className="bg-white rounded-xl shadow-lg p-6 md:p-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">
                             Lascia una recensione
                         </h2>
@@ -320,14 +226,14 @@ export default function Recensioni() {
                                 {recensioni.map((recensione) => (
                                     <article
                                         key={recensione.id}
-                                        className="bg-white rounded-xl shadow p-6"
+                                        className="bg-white rounded-xl shadow p-5 md:p-6"
                                     >
-                                        <div className="flex items-center justify-between gap-4 mb-3">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                                             {renderStars(recensione.voto)}
 
                                             <span className="text-sm text-gray-400">
-                        {formatData(recensione.creatoIl)}
-                      </span>
+                              {formatData(recensione.creatoIl)}
+                            </span>
                                         </div>
 
                                         <p className="text-gray-700 leading-relaxed">
@@ -361,110 +267,6 @@ export default function Recensioni() {
                     </section>
                 </div>
             </main>
-
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white py-12 mt-10">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="grid md:grid-cols-4 gap-8">
-                        <div>
-                            <img
-                                src="/logo.jpeg"
-                                alt="Il Mondo Immobiliare"
-                                className="h-14 w-auto mb-4"
-                            />
-
-                            <p className="text-gray-400 text-sm">
-                                Il Mondo Immobiliare - Agenzia immobiliare a Cremona.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-bold mb-4">Contatti</h3>
-
-                            <div className="space-y-2 text-gray-400 text-sm">
-                                <p className="flex items-center gap-2">
-                                    <Phone className="w-4 h-4" />
-                                    0372 32397
-                                </p>
-
-                                <p className="flex items-center gap-2">
-                                    <Smartphone className="w-4 h-4" />
-                                    (+39) 378 4305750
-                                </p>
-
-                                <p className="flex items-center gap-2">
-                                    <Mail className="w-4 h-4" />
-                                    agenzia@ilmondoimmobiliare.eu
-                                </p>
-
-                                <p className="flex items-center gap-2">
-                                    <MapPinned className="w-4 h-4" />
-                                    Via Palestro, 36 - Cremona
-                                </p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 className="font-bold mb-4">Menu</h3>
-
-                            <div className="space-y-2 text-sm">
-                                <Link to="/" className="block text-gray-400 hover:text-white">
-                                    Home
-                                </Link>
-
-                                <Link to="/immobili" className="block text-gray-400 hover:text-white">
-                                    Immobili
-                                </Link>
-
-                                <Link to="/contatti" className="block text-gray-400 hover:text-white">
-                                    Contatti
-                                </Link>
-
-                                <Link to="/servizi" className="block text-gray-400 hover:text-white">
-                                    Servizi
-                                </Link>
-
-                                <Link to="/agenzia" className="block text-gray-400 hover:text-white">
-                                    Agenzia
-                                </Link>
-
-                                <Link to="/recensioni" className="block text-gray-400 hover:text-white">
-                                    Recensioni
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 className="font-bold mb-4">Seguici</h3>
-
-                            <div className="flex gap-3">
-                                <a
-                                    href="https://www.facebook.com/people/Il-Mondo-Immobiliare-Agenzia-Immobiliare/100063610220386/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-white text-blue-600 p-2 rounded-lg hover:bg-gray-100 transition"
-                                >
-                                    <Facebook className="w-5 h-5" />
-                                </a>
-
-                                <a
-                                    href="https://www.instagram.com/il_mondo_immobiliare/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-white text-pink-600 p-2 rounded-lg hover:bg-gray-100 transition"
-                                >
-                                    <Instagram className="w-5 h-5" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-t border-gray-800 mt-8 pt-6 text-sm text-gray-400">
-                        © 2017 Il Mondo Immobiliare. All Rights Reserved. Partita IVA:
-                        01585350190
-                    </div>
-                </div>
-            </footer>
-        </div>
+        </PublicLayout>
     )
 }

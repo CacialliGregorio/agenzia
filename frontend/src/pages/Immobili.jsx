@@ -1,24 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
-  LogIn,
-  Facebook,
-  Instagram,
   Home as HomeIcon,
-  Phone,
-  Mail,
-  Smartphone,
-  MapPinned,
 } from 'lucide-react'
 import SearchForm from '../components/SearchForm'
 import axiosInstance from '../api/axiosInstance'
-import WhatsAppTopLink from '../components/WhatsAppTopLink'
+import PublicLayout from '../components/PublicLayout'
 
 const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 export default function Immobili() {
-  const token = localStorage.getItem('token')
   const [urlSearchParams] = useSearchParams()
 
   const [immobili, setImmobili] = useState([])
@@ -239,138 +231,22 @@ export default function Immobili() {
   }
 
   return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Top Bar */}
-        <div className="bg-gray-900 text-white text-sm py-2">
-          <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <WhatsAppTopLink />
-
-              <a
-                  href="https://www.facebook.com/ILMONDOIMMOBILIARECR"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-blue-100 transition"
-              >
-                <Facebook className="w-5 h-5 text-blue-600" />
-              </a>
-
-              <a
-                  href="https://www.instagram.com/ilmondoimmobiliare/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white rounded-lg p-1.5 flex items-center justify-center hover:bg-pink-100 transition"
-              >
-                <Instagram className="w-5 h-5 text-pink-500" />
-              </a>
-
-              <span className="mx-2 h-5 w-px bg-gray-400 inline-block"></span>
-
-              <a href="tel:03723397" className="hover:text-gray-300">
-                📞 0372 32397
-              </a>
-
-              <a
-                  href="mailto:agenzia@ilmondoimmobiliare.eu"
-                  className="hover:text-gray-300"
-              >
-                ✉️ agenzia@ilmondoimmobiliare.eu
-              </a>
-            </div>
-
-            <div className="flex gap-4">
-              {token ? (
-                  <Link to="/dashboard" className="hover:text-gray-300">
-                    Dashboard
-                  </Link>
-              ) : (
-                  <Link
-                      to="/login"
-                      className="hover:text-gray-300 flex items-center gap-1"
-                  >
-                    <LogIn className="w-4 h-4" />
-                    Area Dipendenti
-                  </Link>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <button
-                  type="button"
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="cursor-pointer"
-                  aria-label="Torna in cima alla pagina"
-              >
-                <img
-                    src="/logo.jpeg"
-                    alt="Il Mondo Immobiliare"
-                    className="h-16 w-auto"
-                />
-              </button>
-            </div>
-
-            <nav className="flex gap-6">
-              <Link
-                  to="/"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Home
-              </Link>
-
-              <Link to="/immobili" className="text-blue-600 font-medium">
-                Immobili
-              </Link>
-
-              <Link
-                  to="/contatti"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Contatti
-              </Link>
-
-              <Link
-                  to="/servizi"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Servizi
-              </Link>
-
-              <Link
-                  to="/agenzia"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Agenzia
-              </Link>
-              <Link
-                  to="/recensioni"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Recensioni
-              </Link>
-            </nav>
-          </div>
-        </header>
-
+      <PublicLayout activePage="immobili">
         {/* Form ricerca */}
         <SearchForm onSearch={cercaImmobili} />
 
         {/* Risultati immobili */}
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <main className="max-w-7xl mx-auto px-4 py-10 md:py-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               {ricercaAttiva ? 'Risultati ricerca' : 'Immobili disponibili'}
-            </h2>
+            </h1>
 
             {ricercaAttiva && (
                 <button
                     type="button"
                     onClick={caricaImmobili}
-                    className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg font-semibold transition"
+                    className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-3 md:py-2 rounded-lg font-semibold transition"
                 >
                   Mostra tutti
                 </button>
@@ -395,7 +271,7 @@ export default function Immobili() {
                   const fotoCopertina = getFotoUrl(immobile)
 
                   return (
-                      <div
+                      <article
                           key={immobile.id}
                           className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
                       >
@@ -411,12 +287,11 @@ export default function Immobili() {
                           )}
                         </div>
 
-                        <div className="p-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        <div className="p-5 md:p-6">
+                          <h2 className="text-xl font-bold text-gray-900 mb-2">
                             {immobile.titolo}
-                          </h3>
+                          </h2>
 
-                          {/* Punto 9: qui mostriamo il riferimento nella card */}
                           {immobile.codiceRiferimento && (
                               <p className="text-sm font-semibold text-green-700 mb-2">
                                 Rif. {immobile.codiceRiferimento}
@@ -457,158 +332,25 @@ export default function Immobili() {
                             </p>
                           </div>
 
-                          <div className="flex justify-between items-center gap-4">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                             <p className="text-2xl font-bold text-green-600">
                               € {Number(immobile.prezzo).toLocaleString('it-IT')}
                             </p>
 
                             <Link
                                 to={`/immobili/${immobile.id}`}
-                                className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 rounded-lg transition whitespace-nowrap"
+                                className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-3 sm:py-2 rounded-lg transition text-center whitespace-nowrap"
                             >
                               Dettagli
                             </Link>
                           </div>
                         </div>
-                      </div>
+                      </article>
                   )
                 })}
               </div>
           )}
-        </div>
-
-        {/* Footer verde con contatti */}
-        <section className="bg-green-500 text-white mt-12">
-          <div className="max-w-7xl mx-auto px-4 py-14">
-            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-              <div>
-                <h2 className="text-2xl font-bold mb-6">
-                  Il Mondo Immobiliare
-                </h2>
-
-                <p className="text-lg leading-8">
-                  L'agenzia “Il Mondo Immobiliare” offre alla propria clientela un
-                  insieme di servizi integrati in grado di soddisfare tutte le
-                  esigenze di chi compra, vende, affitta o ricerca un immobile.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <h2 className="text-2xl font-bold mb-6">F.I.M.A.A.</h2>
-
-                <img
-                    src="/fimaa.jpg"
-                    alt="F.I.M.A.A."
-                    className="mx-auto max-h-32 w-auto bg-white p-2 rounded"
-                />
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Contatti</h2>
-
-                <div className="space-y-3">
-                  <a
-                      href="https://www.google.com/maps/search/?api=1&query=Viale+Trento+e+Trieste+120+Cremona"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <MapPinned className="w-5 h-5 text-white" />
-                  </span>
-
-                    <span className="font-semibold">
-                    Viale Trento e Trieste, 120
-                  </span>
-                  </a>
-
-                  <a
-                      href="tel:+39037232397"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <Phone className="w-5 h-5 text-white" />
-                  </span>
-
-                    <span className="font-semibold">(+39) 0372 32397</span>
-                  </a>
-
-                  <a
-                      href="tel:+393784305750"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <Smartphone className="w-5 h-5 text-white" />
-                  </span>
-
-                    <span className="font-semibold">(+39) 378 4305750</span>
-                  </a>
-
-                  <a
-                      href="mailto:agenzia@ilmondoimmobiliare.eu"
-                      className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
-                  >
-                  <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
-                    <Mail className="w-5 h-5 text-white" />
-                  </span>
-
-                    <span className="font-semibold break-all">
-                    agenzia@ilmondoimmobiliare.eu
-                  </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Barra finale come sito originale */}
-        <footer className="bg-green-900 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
-              <div className="w-full md:w-1/2">
-                <p className="text-sm text-white/90 mb-2">
-                  © 2017 Il Mondo Immobiliare. All Rights Reserved. Partita IVA:
-                  01585350190
-                </p>
-
-                <div className="flex flex-col items-start gap-1">
-                  <a
-                      href="https://www.iubenda.com/privacy-policy/51205261"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
-                  >
-                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                     i
-                    </span>
-                    Privacy Policy
-                  </a>
-
-                  <a
-                      href="https://www.iubenda.com/privacy-policy/51205261/cookie-policy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-semibold px-2 py-1 rounded shadow hover:bg-gray-100 transition"
-                  >
-                    <span className="inline-flex items-center justify-center w-3 h-3 bg-green-500 text-white rounded-sm text-[9px]">
-                       i
-                    </span>
-                    Cookie Policy
-                  </a>
-                </div>
-              </div>
-
-              <div className="w-full md:w-1/2 flex justify-center md:justify-end">
-                <img
-                    src="/logo.jpeg"
-                    alt="Il Mondo Immobiliare"
-                    className="h-20 w-auto"
-                />
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
+        </main>
+      </PublicLayout>
   )
 }
