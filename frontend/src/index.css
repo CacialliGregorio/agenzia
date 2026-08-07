@@ -8,16 +8,91 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  monospace;
 }
 
+/* =========================
+   FIX RESPONSIVE MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+  /* Top bar: evita che contatti, social e area dipendenti escano dallo schermo */
+  .bg-gray-900 .max-w-7xl {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .bg-gray-900 .max-w-7xl > div {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  /* Header mobile: logo sopra e menu sotto */
+  header .max-w-7xl {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Navbar mobile scrollabile */
+  header nav {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding-bottom: 0.35rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  header nav a {
+    flex: 0 0 auto;
+    font-size: 0.95rem;
+  }
+
+  /* Logo più piccolo su telefono */
+  header img {
+    max-height: 3.5rem;
+  }
+
+  /* Evita scroll orizzontali strani dell'intera pagina */
+  section,
+  main,
+  footer {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Tabelle dashboard: scroll orizzontale controllato */
+  .overflow-x-auto {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 720px;
+  }
+
+  /* Bottoni e link non devono uscire dallo schermo */
+  button,
+  a {
+    max-width: 100%;
+  }
+}

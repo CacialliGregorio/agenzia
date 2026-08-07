@@ -304,7 +304,7 @@ export default function Home() {
         </header>
 
         {/* Hero Slider annunci */}
-        <section className="relative h-[560px] bg-gray-900 overflow-hidden">
+        <section className="relative h-[430px] md:h-[560px] bg-gray-900 overflow-hidden">
           {immobileHero ? (
               <>
                 {fotoHero ? (
@@ -315,7 +315,7 @@ export default function Home() {
                     />
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                      <HomeIcon className="w-28 h-28 text-white opacity-80" />
+                      <HomeIcon className="w-20 h-20 md:w-28 md:h-28 text-white opacity-80" />
                     </div>
                 )}
 
@@ -324,46 +324,46 @@ export default function Home() {
                 <button
                     type="button"
                     onClick={vaiSlidePrecedente}
-                    className="absolute left-8 top-1/2 -translate-y-1/2 z-10 w-16 h-32 border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition flex items-center justify-center"
+                    className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-10 w-10 md:w-16 h-20 md:h-32 border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition flex items-center justify-center"
                 >
-                  <ChevronLeft className="w-10 h-10" />
+                  <ChevronLeft className="w-7 h-7 md:w-10 md:h-10" />
                 </button>
 
                 <button
                     type="button"
                     onClick={vaiSlideSuccessiva}
-                    className="absolute right-8 top-1/2 -translate-y-1/2 z-10 w-16 h-32 border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition flex items-center justify-center"
+                    className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-10 w-10 md:w-16 h-20 md:h-32 border border-white/20 text-white/70 hover:text-white hover:bg-white/10 transition flex items-center justify-center"
                 >
-                  <ChevronRight className="w-10 h-10" />
+                  <ChevronRight className="w-7 h-7 md:w-10 md:h-10" />
                 </button>
 
-                <div className="absolute left-0 right-0 top-[38%] -translate-y-1/2 bg-black/45 py-12">
+                <div className="absolute left-0 right-0 top-[35%] md:top-[38%] -translate-y-1/2 bg-black/45 py-7 md:py-12">
                   <div className="max-w-7xl mx-auto px-4 text-center">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-white uppercase tracking-wide">
+                    <h1 className="text-2xl md:text-5xl font-extrabold text-white uppercase tracking-wide px-4 leading-tight">
                       {immobileHero.titolo}
                     </h1>
                   </div>
                 </div>
 
-                <div className="absolute left-0 right-0 top-[55%] -translate-y-1/2 bg-black/70 py-6">
-                  <div className="max-w-7xl mx-auto px-4 flex justify-center items-center gap-12 text-white">
-                    <div className="flex items-center gap-2">
-                      <Ruler className="w-6 h-6 text-green-400" />
-                      <span className="text-lg">
+                <div className="absolute left-0 right-0 top-[54%] md:top-[55%] -translate-y-1/2 bg-black/70 py-5 md:py-6">
+                  <div className="max-w-7xl mx-auto px-4 flex justify-center items-center gap-5 md:gap-12 text-white">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Ruler className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
+                      <span className="text-sm md:text-lg">
                         {immobileHero.superficieMq || '-'} m²
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <BedDouble className="w-6 h-6 text-green-400" />
-                      <span className="text-lg">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <BedDouble className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
+                      <span className="text-sm md:text-lg">
                         {immobileHero.numeroLocali || '-'}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Bath className="w-6 h-6 text-green-400" />
-                      <span className="text-lg">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Bath className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
+                      <span className="text-sm md:text-lg">
                         {immobileHero.numeroBagni || '-'}
                       </span>
                     </div>
@@ -373,13 +373,13 @@ export default function Home() {
                 <div className="absolute left-0 right-0 top-[70%] -translate-y-1/2 text-center">
                   <Link
                       to={`/immobili/${immobileHero.id}`}
-                      className="inline-block bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold text-2xl px-16 py-4 rounded transition"
+                      className="inline-block bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold text-lg md:text-2xl px-8 md:px-16 py-3 md:py-4 rounded transition"
                   >
                     DETTAGLI
                   </Link>
                 </div>
 
-                <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
+                <div className="absolute bottom-5 md:bottom-6 left-0 right-0 flex justify-center gap-2">
                   {heroImmobili.map((_, index) => (
                       <button
                           key={index}
@@ -403,9 +403,9 @@ export default function Home() {
         <SearchForm onSearch={handleSearchHome} />
 
         {/* Annunci Grid */}
-        <section className="max-w-7xl mx-auto px-4 py-12">
+        <section className="max-w-7xl mx-auto px-4 py-10 md:py-12">
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
               Ultimi immobili disponibili
             </h2>
             <p className="text-gray-600 mt-2">
@@ -478,25 +478,25 @@ export default function Home() {
         </section>
 
         {/* Sezione Recensioni */}
-        <section className="bg-gray-100 py-16">
+        <section className="bg-gray-100 py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10">
+            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     {[1, 2, 3, 4, 5].map((stella) => (
                         <Star
                             key={stella}
-                            className="w-7 h-7 fill-yellow-400 text-yellow-400"
+                            className="w-6 h-6 md:w-7 md:h-7 fill-yellow-400 text-yellow-400"
                         />
                     ))}
                   </div>
 
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                     Hai già avuto a che fare con noi?
                   </h2>
 
-                  <p className="text-gray-600 text-lg leading-8">
+                  <p className="text-gray-600 text-base md:text-lg leading-7 md:leading-8">
                     Lascia una recensione anonima sulla tua esperienza con Il
                     Mondo Immobiliare oppure leggi le recensioni lasciate dagli
                     altri clienti.
@@ -506,14 +506,14 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row md:justify-end gap-4">
                   <Link
                       to="/recensioni"
-                      className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-lg font-bold hover:bg-yellow-500 transition text-center"
+                      className="bg-yellow-400 text-gray-900 px-6 md:px-8 py-4 rounded-lg font-bold hover:bg-yellow-500 transition text-center"
                   >
                     Lascia una recensione
                   </Link>
 
                   <Link
                       to="/recensioni"
-                      className="bg-gray-900 text-white px-8 py-4 rounded-lg font-bold hover:bg-gray-800 transition text-center"
+                      className="bg-gray-900 text-white px-6 md:px-8 py-4 rounded-lg font-bold hover:bg-gray-800 transition text-center"
                   >
                     Vedi recensioni
                   </Link>
@@ -525,7 +525,7 @@ export default function Home() {
 
         {/* Footer verde con contatti */}
         <section className="bg-green-500 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-14">
+          <div className="max-w-7xl mx-auto px-4 py-12 md:py-14">
             <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
               {/* Colonna descrizione */}
               <div>
@@ -533,7 +533,7 @@ export default function Home() {
                   Il Mondo Immobiliare
                 </h2>
 
-                <p className="text-lg leading-8">
+                <p className="text-base md:text-lg leading-8">
                   L'agenzia “Il Mondo Immobiliare” offre alla propria clientela un
                   insieme di servizi integrati in grado di soddisfare tutte le
                   esigenze di chi compra, vende, affitta o ricerca un immobile.
@@ -562,7 +562,7 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
                       <MapPinned className="w-5 h-5 text-white" />
                     </span>
                     <span className="font-semibold">
@@ -574,7 +574,7 @@ export default function Home() {
                       href="tel:+39037232397"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
                       <Phone className="w-5 h-5 text-white" />
                     </span>
                     <span className="font-semibold">(+39) 0372 32397</span>
@@ -584,7 +584,7 @@ export default function Home() {
                       href="tel:+393784305750"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
                       <Smartphone className="w-5 h-5 text-white" />
                     </span>
                     <span className="font-semibold">(+39) 378 4305750</span>
@@ -594,7 +594,7 @@ export default function Home() {
                       href="mailto:agenzia@ilmondoimmobiliare.eu"
                       className="flex items-center bg-green-700/60 hover:bg-green-800/80 transition rounded px-4 py-3"
                   >
-                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3">
+                    <span className="w-10 h-10 bg-green-800/80 rounded flex items-center justify-center mr-3 shrink-0">
                       <Mail className="w-5 h-5 text-white" />
                     </span>
                     <span className="font-semibold break-all">
@@ -642,7 +642,7 @@ export default function Home() {
                 <img
                     src="/logo.jpeg"
                     alt="Il Mondo Immobiliare"
-                    className="h-20 w-auto"
+                    className="h-16 md:h-20 w-auto"
                 />
               </div>
             </div>
