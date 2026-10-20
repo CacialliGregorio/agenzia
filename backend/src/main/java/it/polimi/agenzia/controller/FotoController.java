@@ -30,6 +30,12 @@ public class FotoController {
         try {
             Long userId = (Long) authentication.getDetails();
 
+            System.out.println(
+                    "Upload foto richiesto - immobileId: " + immobileId
+                            + ", userId: " + userId
+                            + ", numero file: " + (files != null ? files.size() : 0)
+            );
+
             List<String> fotoUrls = fotoService.caricaFoto(
                     immobileId,
                     files,
@@ -39,8 +45,17 @@ public class FotoController {
             return ResponseEntity.ok(fotoUrls);
 
         } catch (RuntimeException e) {
+
+            System.err.println(
+                    "ERRORE UPLOAD FOTO immobile " + immobileId
+                            + ": " + e.getMessage()
+            );
+
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(List.of("ERRORE: " + e.getMessage()));
         }
     }
 

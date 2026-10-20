@@ -55,12 +55,43 @@ public class FotoService {
     @Value("${r2.public-url}")
     private String publicUrl;
 
-    public List<String> caricaFoto(Long immobileId, List<MultipartFile> files, Long userId) {
+    public List<String> caricaFoto(
+            Long immobileId,
+            List<MultipartFile> files,
+            Long userId) {
+
+        System.out.println("========== INIZIO UPLOAD FOTO ==========");
+        System.out.println("Immobile ID: " + immobileId);
+        System.out.println("User ID: " + userId);
+        System.out.println("Bucket R2: " + bucketName);
+        System.out.println("Public URL R2: " + publicUrl);
+        System.out.println(
+                "Numero file ricevuti: "
+                        + (files != null ? files.size() : 0)
+        );
+
         Immobile immobile = immobileRepository.findById(immobileId)
-                .orElseThrow(() -> new RuntimeException("Immobile non trovato"));
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Immobile non trovato: " + immobileId
+                        )
+                );
+
+        if (immobile.getUser() == null) {
+            throw new RuntimeException(
+                    "L'immobile non ha un utente associato"
+            );
+        }
+
+        System.out.println(
+                "Proprietario immobile: "
+                        + immobile.getUser().getId()
+        );
 
         if (!immobile.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Non autorizzato a caricare foto per questo immobile");
+            throw new RuntimeException(
+                    "Non autorizzato a caricare foto per questo immobile"
+            );
         }
 
         if (files == null || files.isEmpty()) {
@@ -70,30 +101,100 @@ public class FotoService {
         List<String> percorsiSalvati = new ArrayList<>();
 
         try {
+
             List<Foto> fotoEsistenti =
-                    fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+                    fotoRepository
+                            .findByImmobileIdOrderByOrdinamentoAsc(
+                                    immobileId
+                            );
 
             int ordinamento = fotoEsistenti.size();
 
+            System.out.println(
+                    "Foto già presenti: " + fotoEsistenti.size()
+            );
+
             for (MultipartFile file : files) {
+
                 if (file == null || file.isEmpty()) {
+                    System.out.println(
+                            "File vuoto ignorato"
+                    );
                     continue;
                 }
 
+                System.out.println("--------------------------------");
+                System.out.println(
+                        "Nome originale: "
+                                + file.getOriginalFilename()
+                );
+                System.out.println(
+                        "Content-Type: "
+                                + file.getContentType()
+                );
+                System.out.println(
+                        "Dimensione originale: "
+                                + file.getSize()
+                                + " bytes"
+                );
+
                 validaFileImmagine(file);
 
-                String nomeFile = System.currentTimeMillis()
-                        + "-"
-                        + UUID.randomUUID()
-                        + ".jpg";
+                System.out.println(
+                        "Validazione immagine OK"
+                );
 
-                String objectKey = "immobili/" + immobileId + "/" + nomeFile;
+                String nomeFile =
+                        System.currentTimeMillis()
+                                + "-"
+                                + UUID.randomUUID()
+                                + ".jpg";
 
-                byte[] immagineCompressa = comprimiImmagine(file);
+                String objectKey =
+                        "immobili/"
+                                + immobileId
+                                + "/"
+                                + nomeFile;
 
-                caricaSuR2(objectKey, immagineCompressa);
+                System.out.println(
+                        "Object key R2: " + objectKey
+                );
 
-                String percorsoPubblico = pulisciUrl(publicUrl) + "/" + objectKey;
+                System.out.println(
+                        "Inizio compressione immagine..."
+                );
+
+                byte[] immagineCompressa =
+                        comprimiImmagine(file);
+
+                System.out.println(
+                        "Compressione completata. Dimensione: "
+                                + immagineCompressa.length
+                                + " bytes"
+                );
+
+                System.out.println(
+                        "Inizio upload Cloudflare R2..."
+                );
+
+                caricaSuR2(
+                        objectKey,
+                        immagineCompressa
+                );
+
+                System.out.println(
+                        "Upload Cloudflare R2 completato"
+                );
+
+                String percorsoPubblico =
+                        pulisciUrl(publicUrl)
+                                + "/"
+                                + objectKey;
+
+                System.out.println(
+                        "URL pubblico foto: "
+                                + percorsoPubblico
+                );
 
                 Foto foto = Foto.builder()
                         .immobile(immobile)
@@ -102,298 +203,587 @@ public class FotoService {
                         .ordinamento(ordinamento)
                         .build();
 
+                System.out.println(
+                        "Salvataggio record foto nel database..."
+                );
+
                 fotoRepository.save(foto);
 
-                percorsiSalvati.add(percorsoPubblico);
+                System.out.println(
+                        "Record foto salvato nel database"
+                );
+
+                percorsiSalvati.add(
+                        percorsoPubblico
+                );
+
                 ordinamento++;
             }
+
+            System.out.println(
+                    "========== UPLOAD FOTO COMPLETATO =========="
+            );
 
             return percorsiSalvati;
 
         } catch (IOException e) {
+
+            System.err.println(
+                    "ERRORE COMPRESSIONE IMMAGINE"
+            );
+
+            System.err.println(
+                    e.getClass().getName()
+                            + ": "
+                            + e.getMessage()
+            );
+
             e.printStackTrace();
-            throw new RuntimeException("Errore durante la compressione delle immagini");
+
+            throw new RuntimeException(
+                    "Errore durante la compressione delle immagini: "
+                            + e.getMessage(),
+                    e
+            );
+
         } catch (Exception e) {
+
+            System.err.println(
+                    "ERRORE DURANTE UPLOAD FOTO"
+            );
+
+            System.err.println(
+                    "Tipo errore: "
+                            + e.getClass().getName()
+            );
+
+            System.err.println(
+                    "Messaggio: "
+                            + e.getMessage()
+            );
+
             e.printStackTrace();
-            throw new RuntimeException("Errore durante il caricamento delle immagini su Cloudflare R2");
+
+            throw new RuntimeException(
+                    "Errore upload foto: "
+                            + e.getClass().getSimpleName()
+                            + " - "
+                            + e.getMessage(),
+                    e
+            );
         }
     }
 
-    private void validaFileImmagine(MultipartFile file) {
-        String contentType = file.getContentType();
+    private void validaFileImmagine(
+            MultipartFile file) {
 
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new RuntimeException("Puoi caricare solo file immagine");
+        String contentType =
+                file.getContentType();
+
+        if (contentType == null
+                || !contentType.startsWith("image/")) {
+
+            throw new RuntimeException(
+                    "Puoi caricare solo file immagine"
+            );
         }
 
-        String nomeOriginale = file.getOriginalFilename();
+        String nomeOriginale =
+                file.getOriginalFilename();
 
-        if (nomeOriginale == null || nomeOriginale.isBlank()) {
-            throw new RuntimeException("Nome file immagine non valido");
+        if (nomeOriginale == null
+                || nomeOriginale.isBlank()) {
+
+            throw new RuntimeException(
+                    "Nome file immagine non valido"
+            );
         }
 
-        String nomeMinuscolo = nomeOriginale.toLowerCase();
+        String nomeMinuscolo =
+                nomeOriginale.toLowerCase();
 
         boolean estensioneValida =
-                nomeMinuscolo.endsWith(".jpg") ||
-                        nomeMinuscolo.endsWith(".jpeg") ||
-                        nomeMinuscolo.endsWith(".png") ||
-                        nomeMinuscolo.endsWith(".webp");
+                nomeMinuscolo.endsWith(".jpg")
+                        || nomeMinuscolo.endsWith(".jpeg")
+                        || nomeMinuscolo.endsWith(".png")
+                        || nomeMinuscolo.endsWith(".webp");
 
         if (!estensioneValida) {
-            throw new RuntimeException("Formato immagine non supportato. Usa JPG, JPEG, PNG o WEBP");
+
+            throw new RuntimeException(
+                    "Formato immagine non supportato. "
+                            + "Usa JPG, JPEG, PNG o WEBP"
+            );
         }
     }
 
-    private byte[] comprimiImmagine(MultipartFile file) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    private byte[] comprimiImmagine(
+            MultipartFile file)
+            throws IOException {
 
-        Thumbnails.of(file.getInputStream())
-                .size(LARGHEZZA_MASSIMA, ALTEZZA_MASSIMA)
+        ByteArrayOutputStream outputStream =
+                new ByteArrayOutputStream();
+
+        Thumbnails.of(
+                        file.getInputStream()
+                )
+                .size(
+                        LARGHEZZA_MASSIMA,
+                        ALTEZZA_MASSIMA
+                )
                 .outputFormat("jpg")
-                .outputQuality(QUALITA_JPG)
-                .toOutputStream(outputStream);
+                .outputQuality(
+                        QUALITA_JPG
+                )
+                .toOutputStream(
+                        outputStream
+                );
 
         return outputStream.toByteArray();
     }
 
-    private void caricaSuR2(String objectKey, byte[] bytes) {
-        PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .contentType("image/jpeg")
-                .contentLength((long) bytes.length)
-                .build();
+    private void caricaSuR2(
+            String objectKey,
+            byte[] bytes) {
 
-        s3Client.putObject(request, RequestBody.fromBytes(bytes));
+        System.out.println(
+                "Preparazione PutObjectRequest..."
+        );
 
-        System.out.println("Foto caricata su R2: " + objectKey);
+        System.out.println(
+                "Bucket: " + bucketName
+        );
+
+        System.out.println(
+                "Key: " + objectKey
+        );
+
+        System.out.println(
+                "Bytes: " + bytes.length
+        );
+
+        PutObjectRequest request =
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectKey)
+                        .contentType("image/jpeg")
+                        .contentLength(
+                                (long) bytes.length
+                        )
+                        .build();
+
+        s3Client.putObject(
+                request,
+                RequestBody.fromBytes(bytes)
+        );
+
+        System.out.println(
+                "Foto caricata su R2: "
+                        + objectKey
+        );
     }
 
-    public void eliminaFoto(Long immobileId, String percorso, Long userId) {
-        Immobile immobile = immobileRepository.findById(immobileId)
-                .orElseThrow(() -> new RuntimeException("Immobile non trovato"));
+    public void eliminaFoto(
+            Long immobileId,
+            String percorso,
+            Long userId) {
 
-        if (!immobile.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Non autorizzato a eliminare foto per questo immobile");
+        Immobile immobile =
+                immobileRepository
+                        .findById(immobileId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Immobile non trovato"
+                                )
+                        );
+
+        if (!immobile
+                .getUser()
+                .getId()
+                .equals(userId)) {
+
+            throw new RuntimeException(
+                    "Non autorizzato a eliminare foto per questo immobile"
+            );
         }
 
         List<Foto> fotoImmobile =
-                fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+                fotoRepository
+                        .findByImmobileIdOrderByOrdinamentoAsc(
+                                immobileId
+                        );
 
-        Foto fotoDaEliminare = fotoImmobile.stream()
-                .filter(foto -> foto.getPercorso().equals(percorso))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Foto non trovata"));
+        Foto fotoDaEliminare =
+                fotoImmobile
+                        .stream()
+                        .filter(foto ->
+                                foto
+                                        .getPercorso()
+                                        .equals(percorso)
+                        )
+                        .findFirst()
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Foto non trovata"
+                                )
+                        );
 
         try {
-            eliminaFileFoto(immobileId, fotoDaEliminare);
+
+            eliminaFileFoto(
+                    immobileId,
+                    fotoDaEliminare
+            );
+
         } catch (Exception e) {
+
             e.printStackTrace();
-            throw new RuntimeException("Errore durante l'eliminazione del file immagine");
+
+            throw new RuntimeException(
+                    "Errore durante l'eliminazione del file immagine"
+            );
         }
 
-        fotoRepository.delete(fotoDaEliminare);
+        fotoRepository.delete(
+                fotoDaEliminare
+        );
 
-        riordinaFoto(immobileId);
+        riordinaFoto(
+                immobileId
+        );
     }
 
-    /*
-     * Metodo usato quando viene eliminato un intero annuncio.
-     * Prima prova a eliminare tutte le immagini fisiche da Cloudflare R2 o dal locale.
-     * Se una foto fisica non viene eliminata, l'annuncio viene comunque eliminato dal database.
-     */
-    public void eliminaTutteLeFotoImmobile(Long immobileId) {
-        List<Foto> fotoImmobile =
-                fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+    public void eliminaTutteLeFotoImmobile(
+            Long immobileId) {
 
-        System.out.println("Eliminazione annuncio " + immobileId + ": trovate " + fotoImmobile.size() + " foto.");
+        List<Foto> fotoImmobile =
+                fotoRepository
+                        .findByImmobileIdOrderByOrdinamentoAsc(
+                                immobileId
+                        );
+
+        System.out.println(
+                "Eliminazione annuncio "
+                        + immobileId
+                        + ": trovate "
+                        + fotoImmobile.size()
+                        + " foto."
+        );
 
         for (Foto foto : fotoImmobile) {
+
             try {
-                eliminaFileFoto(immobileId, foto);
+
+                eliminaFileFoto(
+                        immobileId,
+                        foto
+                );
+
             } catch (Exception e) {
-                /*
-                 * Non blocchiamo l'eliminazione dell'annuncio se Cloudflare R2
-                 * o il filesystem non riescono a eliminare fisicamente una foto.
-                 * L'immobile e i record foto devono comunque essere rimossi dal database.
-                 */
+
                 System.out.println(
-                        "Impossibile eliminare fisicamente la foto " +
-                                foto.getId() +
-                                " dell'immobile " +
-                                immobileId +
-                                ". Continuo comunque con l'eliminazione dal database."
+                        "Impossibile eliminare fisicamente la foto "
+                                + foto.getId()
+                                + " dell'immobile "
+                                + immobileId
+                                + ". Continuo comunque con "
+                                + "l'eliminazione dal database."
                 );
 
                 e.printStackTrace();
             }
         }
 
-        fotoRepository.deleteAll(fotoImmobile);
+        fotoRepository.deleteAll(
+                fotoImmobile
+        );
 
-        System.out.println("Record foto eliminati dal database per immobile: " + immobileId);
+        System.out.println(
+                "Record foto eliminati dal database per immobile: "
+                        + immobileId
+        );
     }
 
-    private void eliminaFileFoto(Long immobileId, Foto foto) throws IOException {
-        String objectKey = ricavaObjectKeyDaFoto(foto);
+    private void eliminaFileFoto(
+            Long immobileId,
+            Foto foto)
+            throws IOException {
 
-        if (objectKey != null && objectKey.startsWith("immobili/")) {
-            eliminaDaR2(objectKey);
+        String objectKey =
+                ricavaObjectKeyDaFoto(foto);
+
+        if (objectKey != null
+                && objectKey.startsWith("immobili/")) {
+
+            eliminaDaR2(
+                    objectKey
+            );
+
         } else {
-            eliminaDaLocale(immobileId, foto.getNomeFile());
+
+            eliminaDaLocale(
+                    immobileId,
+                    foto.getNomeFile()
+            );
         }
     }
 
-    private String ricavaObjectKeyDaFoto(Foto foto) {
-        String nomeFile = foto.getNomeFile();
-        String percorso = foto.getPercorso();
-        String publicUrlPulito = pulisciUrl(publicUrl);
+    private String ricavaObjectKeyDaFoto(
+            Foto foto) {
 
-        /*
-         * Caso nuovo corretto:
-         * nomeFile = immobili/30/file.jpg
-         */
-        if (nomeFile != null && nomeFile.startsWith("immobili/")) {
+        String nomeFile =
+                foto.getNomeFile();
+
+        String percorso =
+                foto.getPercorso();
+
+        String publicUrlPulito =
+                pulisciUrl(publicUrl);
+
+        if (nomeFile != null
+                && nomeFile.startsWith("immobili/")) {
+
             return nomeFile;
         }
 
-        /*
-         * Caso in cui abbiamo solo l'URL pubblico:
-         * percorso = https://pub-xxx.r2.dev/immobili/30/file.jpg
-         */
-        if (percorso != null && percorso.startsWith(publicUrlPulito + "/")) {
-            return percorso.substring((publicUrlPulito + "/").length());
+        if (percorso != null
+                && percorso.startsWith(
+                publicUrlPulito + "/"
+        )) {
+
+            return percorso.substring(
+                    (publicUrlPulito + "/")
+                            .length()
+            );
         }
 
-        /*
-         * Caso vecchio locale:
-         * percorso = /api/uploads/immobili/30/file.jpg
-         */
         return null;
     }
 
-    private void eliminaDaR2(String objectKey) {
-        DeleteObjectRequest request = DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .build();
+    private void eliminaDaR2(
+            String objectKey) {
 
-        s3Client.deleteObject(request);
+        DeleteObjectRequest request =
+                DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectKey)
+                        .build();
 
-        System.out.println("Foto eliminata da R2: " + objectKey);
+        s3Client.deleteObject(
+                request
+        );
+
+        System.out.println(
+                "Foto eliminata da R2: "
+                        + objectKey
+        );
     }
 
-    private void eliminaDaLocale(Long immobileId, String nomeFile) throws IOException {
-        if (nomeFile == null || nomeFile.isBlank()) {
+    private void eliminaDaLocale(
+            Long immobileId,
+            String nomeFile)
+            throws IOException {
+
+        if (nomeFile == null
+                || nomeFile.isBlank()) {
+
             return;
         }
 
         Path filePath;
 
-        /*
-         * Se nomeFile è già un percorso vecchio tipo:
-         * immobili/30/file.jpg
-         * evitiamo di comporre male il path locale.
-         */
         if (nomeFile.startsWith("immobili/")) {
-            filePath = Paths.get("uploads").resolve(nomeFile).normalize();
+
+            filePath =
+                    Paths.get("uploads")
+                            .resolve(nomeFile)
+                            .normalize();
+
         } else {
-            filePath = uploadRoot
-                    .resolve(immobileId.toString())
-                    .resolve(nomeFile)
-                    .normalize();
+
+            filePath =
+                    uploadRoot
+                            .resolve(
+                                    immobileId.toString()
+                            )
+                            .resolve(nomeFile)
+                            .normalize();
         }
 
-        Files.deleteIfExists(filePath);
+        Files.deleteIfExists(
+                filePath
+        );
 
-        System.out.println("Foto eliminata da locale: " + filePath);
+        System.out.println(
+                "Foto eliminata da locale: "
+                        + filePath
+        );
     }
 
-    public void aggiornaOrdineFoto(Long immobileId, List<String> percorsiOrdinati, Long userId) {
-        Immobile immobile = immobileRepository.findById(immobileId)
-                .orElseThrow(() -> new RuntimeException("Immobile non trovato"));
+    public void aggiornaOrdineFoto(
+            Long immobileId,
+            List<String> percorsiOrdinati,
+            Long userId) {
 
-        if (!immobile.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Non autorizzato a riordinare foto per questo immobile");
+        Immobile immobile =
+                immobileRepository
+                        .findById(immobileId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Immobile non trovato"
+                                )
+                        );
+
+        if (!immobile
+                .getUser()
+                .getId()
+                .equals(userId)) {
+
+            throw new RuntimeException(
+                    "Non autorizzato a riordinare foto per questo immobile"
+            );
         }
 
-        if (percorsiOrdinati == null || percorsiOrdinati.isEmpty()) {
-            throw new RuntimeException("Lista foto vuota");
+        if (percorsiOrdinati == null
+                || percorsiOrdinati.isEmpty()) {
+
+            throw new RuntimeException(
+                    "Lista foto vuota"
+            );
         }
 
         List<Foto> fotoImmobile =
-                fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+                fotoRepository
+                        .findByImmobileIdOrderByOrdinamentoAsc(
+                                immobileId
+                        );
 
-        for (int i = 0; i < percorsiOrdinati.size(); i++) {
-            String percorso = percorsiOrdinati.get(i);
+        for (int i = 0;
+             i < percorsiOrdinati.size();
+             i++) {
 
-            Foto fotoDaAggiornare = fotoImmobile.stream()
-                    .filter(foto -> foto.getPercorso().equals(percorso))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Foto non trovata: " + percorso));
+            String percorso =
+                    percorsiOrdinati.get(i);
 
-            fotoDaAggiornare.setOrdinamento(i);
-            fotoRepository.save(fotoDaAggiornare);
+            Foto fotoDaAggiornare =
+                    fotoImmobile
+                            .stream()
+                            .filter(foto ->
+                                    foto
+                                            .getPercorso()
+                                            .equals(percorso)
+                            )
+                            .findFirst()
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Foto non trovata: "
+                                                    + percorso
+                                    )
+                            );
+
+            fotoDaAggiornare
+                    .setOrdinamento(i);
+
+            fotoRepository.save(
+                    fotoDaAggiornare
+            );
         }
     }
 
-    private void riordinaFoto(Long immobileId) {
+    private void riordinaFoto(
+            Long immobileId) {
+
         List<Foto> fotoRimanenti =
-                fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId);
+                fotoRepository
+                        .findByImmobileIdOrderByOrdinamentoAsc(
+                                immobileId
+                        );
 
         fotoRimanenti.sort(
                 Comparator.comparing(
                         Foto::getOrdinamento,
-                        Comparator.nullsLast(Integer::compareTo)
+                        Comparator.nullsLast(
+                                Integer::compareTo
+                        )
                 )
         );
 
-        for (int i = 0; i < fotoRimanenti.size(); i++) {
-            Foto foto = fotoRimanenti.get(i);
+        for (int i = 0;
+             i < fotoRimanenti.size();
+             i++) {
+
+            Foto foto =
+                    fotoRimanenti.get(i);
+
             foto.setOrdinamento(i);
-            fotoRepository.save(foto);
+
+            fotoRepository.save(
+                    foto
+            );
         }
     }
 
-    public List<String> getFotoUrls(Long immobileId) {
-        return fotoRepository.findByImmobileIdOrderByOrdinamentoAsc(immobileId)
+    public List<String> getFotoUrls(
+            Long immobileId) {
+
+        return fotoRepository
+                .findByImmobileIdOrderByOrdinamentoAsc(
+                        immobileId
+                )
                 .stream()
                 .map(Foto::getPercorso)
                 .toList();
     }
 
-    /*
-     * Questo metodo resta solo per le vecchie immagini locali.
-     * Le nuove immagini R2 vengono lette direttamente dal loro URL pubblico.
-     */
-    public Resource caricaFile(Long immobileId, String nomeFile) {
+    public Resource caricaFile(
+            Long immobileId,
+            String nomeFile) {
+
         try {
-            Path filePath = uploadRoot
-                    .resolve(immobileId.toString())
-                    .resolve(nomeFile)
-                    .normalize();
 
-            Resource resource = new UrlResource(filePath.toUri());
+            Path filePath =
+                    uploadRoot
+                            .resolve(
+                                    immobileId.toString()
+                            )
+                            .resolve(nomeFile)
+                            .normalize();
 
-            if (!resource.exists() || !resource.isReadable()) {
-                throw new RuntimeException("File immagine non trovato");
+            Resource resource =
+                    new UrlResource(
+                            filePath.toUri()
+                    );
+
+            if (!resource.exists()
+                    || !resource.isReadable()) {
+
+                throw new RuntimeException(
+                        "File immagine non trovato"
+                );
             }
 
             return resource;
 
         } catch (MalformedURLException e) {
-            throw new RuntimeException("File immagine non valido");
+
+            throw new RuntimeException(
+                    "File immagine non valido"
+            );
         }
     }
 
-    private String pulisciUrl(String url) {
+    private String pulisciUrl(
+            String url) {
+
         if (url == null) {
             return "";
         }
 
         if (url.endsWith("/")) {
-            return url.substring(0, url.length() - 1);
+            return url.substring(
+                    0,
+                    url.length() - 1
+            );
         }
 
         return url;
