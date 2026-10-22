@@ -19,6 +19,10 @@ export default function Dashboard() {
   const [immobili, setImmobili] = useState([])
   const [loading, setLoading] = useState(true)
 
+  // Ricerca e ordinamento per codice riferimento immobile
+  const [searchId, setSearchId] = useState('')
+  const [sortId, setSortId] = useState('desc')
+
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [editingData, setEditingData] = useState(null)
@@ -112,7 +116,9 @@ export default function Dashboard() {
     try {
       await axiosInstance.delete(`/immobili/${id}`)
 
-      setImmobili((prev) => prev.filter((immobile) => immobile.id !== id))
+      setImmobili((prev) =>
+          prev.filter((immobile) => immobile.id !== id)
+      )
 
       if (selectedNoteId === id) {
         handleCloseNote()
@@ -359,6 +365,33 @@ export default function Dashboard() {
     return stato || '-'
   }
 
+  /*
+   * IMPORTANTE:
+   * la Dashboard usa come ID visibile il codice riferimento
+   * inserito manualmente quando viene creato l'annuncio.
+   *
+   * L'id tecnico del database continua invece ad essere utilizzato
+   * internamente per modifica, eliminazione, note e visualizzazione.
+   */
+  const immobiliVisualizzati = [...immobili]
+      .filter((immobile) => {
+        if (!searchId.trim()) {
+          return true
+        }
+
+        return String(immobile.codiceRiferimento || '') === searchId.trim()
+      })
+      .sort((a, b) => {
+        const idA = Number(a.codiceRiferimento) || 0
+        const idB = Number(b.codiceRiferimento) || 0
+
+        if (sortId === 'asc') {
+          return idA - idB
+        }
+
+        return idB - idA
+      })
+
   return (
       <div className="min-h-screen bg-gray-50">
         {/* Top Bar */}
@@ -589,15 +622,74 @@ export default function Dashboard() {
                 sito pubblico vengono mostrati solo quelli disponibili.
               </p>
 
+              {/* Ricerca e ordinamento per ID commerciale */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label
+                      htmlFor="search-id"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Cerca per ID
+                  </label>
+
+                  <input
+                      id="search-id"
+                      type="number"
+                      min="1"
+                      value={searchId}
+                      onChange={(e) => setSearchId(e.target.value)}
+                      placeholder="Es. 1813"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label
+                      htmlFor="sort-id"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Ordina per ID
+                  </label>
+
+                  <select
+                      id="sort-id"
+                      value={sortId}
+                      onChange={(e) => setSortId(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="desc">Decrescente</option>
+                    <option value="asc">Crescente</option>
+                  </select>
+                </div>
+              </div>
+
               {loading ? (
                   <p className="text-gray-600">Caricamento...</p>
               ) : immobili.length === 0 ? (
                   <p className="text-gray-600">Nessun annuncio creato</p>
+              ) : immobiliVisualizzati.length === 0 ? (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-6 text-center">
+                    <p className="text-gray-600 font-medium">
+                      Nessun immobile trovato con questo ID.
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={() => setSearchId('')}
+                        className="mt-3 text-blue-600 hover:text-blue-700 font-semibold"
+                    >
+                      Mostra tutti gli annunci
+                    </button>
+                  </div>
               ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead className="bg-gray-100">
                       <tr>
+                        <th className="px-4 py-2 text-left font-semibold text-gray-700">
+                          ID
+                        </th>
+
                         <th className="px-4 py-2 text-left font-semibold text-gray-700">
                           Titolo
                         </th>
@@ -621,11 +713,15 @@ export default function Dashboard() {
                       </thead>
 
                       <tbody>
-                      {immobili.map((immobile) => (
+                      {immobiliVisualizzati.map((immobile) => (
                           <tr
                               key={immobile.id}
                               className="border-b hover:bg-gray-50"
                           >
+                            <td className="px-4 py-3 text-gray-600 font-semibold">
+                              {immobile.codiceRiferimento || '-'}
+                            </td>
+
                             <td className="px-4 py-3 text-gray-800 font-semibold">
                               {immobile.titolo}
 
