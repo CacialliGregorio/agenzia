@@ -5,6 +5,7 @@ import {
   LogOut,
   Plus,
   Edit,
+  Eye,
   Trash2,
   StickyNote,
   Save,
@@ -662,6 +663,22 @@ export default function Dashboard() {
                                     title="Modifica"
                                 >
                                   <Edit className="w-4 h-4" />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        window.open(
+                                            `/immobili/${immobile.id}`,
+                                            '_blank',
+                                            'noopener,noreferrer'
+                                        )
+                                    }
+                                    className="p-2 text-green-600 hover:bg-green-50 rounded"
+                                    title="Visualizza annuncio"
+                                    aria-label={`Visualizza annuncio ${immobile.titolo}`}
+                                >
+                                  <Eye className="w-4 h-4" />
                                 </button>
 
                                 <button
