@@ -47,7 +47,7 @@ export default function Servizi() {
           {/* Testo descrittivo */}
           <section className="bg-gray-50 px-2 md:px-4 py-8 md:py-12 mb-12">
             <div className="max-w-6xl mx-auto text-center">
-              <p className="text-xl md:text-3xl text-gray-600 leading-8 md:leading-relaxed mb-8">
+              <p className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-8">
                 L’agenzia{' '}
                 <strong className="font-bold text-gray-700">
                   “Il Mondo Immobiliare”
@@ -57,14 +57,14 @@ export default function Servizi() {
                 o ricerca un immobile.
               </p>
 
-              <p className="text-xl md:text-3xl text-gray-600 leading-8 md:leading-relaxed mb-10 md:mb-12">
+              <p className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-10 md:mb-12">
                 La professionalità del proprio staff consente di risolvere con
                 efficienza e tempestività tutte le pratiche burocratiche e gli
                 adempimenti fiscali connessi come:
               </p>
 
               <div className="max-w-2xl mx-auto text-left border-l-4 border-gray-200 pl-5 md:pl-8">
-                <ul className="text-lg md:text-xl text-gray-600 leading-9 md:leading-10">
+                <ul className="text-xl md:text-2xl text-gray-600 leading-relaxed space-y-2">
                   <li>- stipula e la registrazione di contratti;</li>
                   <li>- risoluzioni contratti;</li>
                   <li>- valutazioni e perizie;</li>
