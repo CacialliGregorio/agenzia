@@ -23,7 +23,7 @@ export default function Dashboard() {
 
   // Ricerca e ordinamento per codice riferimento immobile
   const [searchId, setSearchId] = useState('')
-  const [sortId, setSortId] = useState('desc')
+  const [ordinamento, setOrdinamento] = useState('id-desc')
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -442,10 +442,18 @@ export default function Dashboard() {
         return String(immobile.codiceRiferimento || '') === searchId.trim()
       })
       .sort((a, b) => {
+        if (ordinamento === 'prezzo-asc') {
+          return Number(a.prezzo || 0) - Number(b.prezzo || 0)
+        }
+
+        if (ordinamento === 'prezzo-desc') {
+          return Number(b.prezzo || 0) - Number(a.prezzo || 0)
+        }
+
         const idA = Number(a.codiceRiferimento) || 0
         const idB = Number(b.codiceRiferimento) || 0
 
-        if (sortId === 'asc') {
+        if (ordinamento === 'id-asc') {
           return idA - idB
         }
 
@@ -705,20 +713,22 @@ export default function Dashboard() {
 
                 <div>
                   <label
-                      htmlFor="sort-id"
+                      htmlFor="ordinamento"
                       className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Ordina per ID
+                    Ordina immobili
                   </label>
 
                   <select
-                      id="sort-id"
-                      value={sortId}
-                      onChange={(e) => setSortId(e.target.value)}
+                      id="ordinamento"
+                      value={ordinamento}
+                      onChange={(e) => setOrdinamento(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                   >
-                    <option value="desc">Decrescente</option>
-                    <option value="asc">Crescente</option>
+                    <option value="id-desc">ID decrescente</option>
+                    <option value="id-asc">ID crescente</option>
+                    <option value="prezzo-asc">Prezzo crescente</option>
+                    <option value="prezzo-desc">Prezzo decrescente</option>
                   </select>
                 </div>
               </div>
