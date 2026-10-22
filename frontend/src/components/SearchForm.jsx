@@ -11,8 +11,8 @@ export default function SearchForm({ onSearch }) {
     camereLettoMax: '',
     bagniMin: '',
     bagniMax: '',
-    prezzoMin: 0,
-    prezzoMax: 2000000,
+    prezzoMin: '',
+    prezzoMax: '',
     codiceRiferimento: '',
   })
 
@@ -134,26 +134,6 @@ export default function SearchForm({ onSearch }) {
       ...filterText,
       [key]: '',
     })
-  }
-
-  const handlePriceChange = (side, value) => {
-    const numValue = parseInt(value)
-
-    if (side === 'min') {
-      if (numValue <= formData.prezzoMax) {
-        setFormData({
-          ...formData,
-          prezzoMin: numValue,
-        })
-      }
-    } else {
-      if (numValue >= formData.prezzoMin) {
-        setFormData({
-          ...formData,
-          prezzoMax: numValue,
-        })
-      }
-    }
   }
 
   const handleSearch = () => {
@@ -294,7 +274,9 @@ export default function SearchForm({ onSearch }) {
                     type="button"
                     onClick={() =>
                         setOpenDropdown(
-                            openDropdown === 'destinazione' ? null : 'destinazione'
+                            openDropdown === 'destinazione'
+                                ? null
+                                : 'destinazione'
                         )
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white flex justify-between items-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -373,7 +355,9 @@ export default function SearchForm({ onSearch }) {
                             <button
                                 type="button"
                                 key={option}
-                                onClick={() => handleDropdownChange('tipo', option)}
+                                onClick={() =>
+                                    handleDropdownChange('tipo', option)
+                                }
                                 className="w-full text-left px-4 py-2 hover:bg-green-50 transition"
                             >
                               {option}
@@ -437,7 +421,9 @@ export default function SearchForm({ onSearch }) {
                 <button
                     type="button"
                     onClick={() =>
-                        setOpenDropdown(openDropdown === 'bagniMin' ? null : 'bagniMin')
+                        setOpenDropdown(
+                            openDropdown === 'bagniMin' ? null : 'bagniMin'
+                        )
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white flex justify-between items-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
@@ -465,60 +451,73 @@ export default function SearchForm({ onSearch }) {
                 )}
               </div>
 
-              {/* PREZZO */}
-              <div className="col-span-1 md:col-span-2 lg:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Prezzo
+              {/* PREZZO MINIMO */}
+              <div>
+                <label
+                    htmlFor="prezzo-min"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Prezzo minimo
                 </label>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600">Min:</span>
+                <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                  €
+                </span>
 
-                    <input
-                        type="range"
-                        min="0"
-                        max="2000000"
-                        step="10000"
-                        value={formData.prezzoMin}
-                        onChange={(e) =>
-                            handlePriceChange('min', e.target.value)
-                        }
-                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
-                    />
-
-                    <span className="text-xs font-medium text-green-600 whitespace-nowrap">
-                    {(formData.prezzoMin / 1000).toFixed(0)}k€
-                  </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600">Max:</span>
-
-                    <input
-                        type="range"
-                        min="0"
-                        max="2000000"
-                        step="10000"
-                        value={formData.prezzoMax}
-                        onChange={(e) =>
-                            handlePriceChange('max', e.target.value)
-                        }
-                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-500"
-                    />
-
-                    <span className="text-xs font-medium text-green-600 whitespace-nowrap">
-                    {(formData.prezzoMax / 1000).toFixed(0)}k€
-                  </span>
-                  </div>
-
-                  <div className="text-center text-xs text-gray-600 pt-1 border-t">
-                    {formData.prezzoMin.toLocaleString('it-IT')}€ -{' '}
-                    {formData.prezzoMax.toLocaleString('it-IT')}€
-                  </div>
+                  <input
+                      id="prezzo-min"
+                      type="number"
+                      min="0"
+                      step="1000"
+                      value={formData.prezzoMin}
+                      onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            prezzoMin: e.target.value,
+                          })
+                      }
+                      placeholder="Es. 100000"
+                      className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
                 </div>
               </div>
 
+              {/* PREZZO MASSIMO */}
+              <div>
+                <label
+                    htmlFor="prezzo-max"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Prezzo massimo
+                </label>
+
+                <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                  €
+                </span>
+
+                  <input
+                      id="prezzo-max"
+                      type="number"
+                      min="0"
+                      step="1000"
+                      value={formData.prezzoMax}
+                      onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            prezzoMax: e.target.value,
+                          })
+                      }
+                      placeholder="Es. 300000"
+                      className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Terza riga */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* CODICE RIFERIMENTO */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
