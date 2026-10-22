@@ -12,9 +12,11 @@ import {
   Image,
 } from 'lucide-react'
 import ImmobileForm from '../components/ImmobileForm'
+import { useToast } from '../context/ToastContext'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const { success, error } = useToast()
 
   const [immobili, setImmobili] = useState([])
   const [loading, setLoading] = useState(true)
@@ -56,8 +58,8 @@ export default function Dashboard() {
       })
 
       setImmobili(response.data.content || [])
-    } catch (error) {
-      console.error('Errore nel caricamento annunci:', error)
+    } catch (err) {
+      console.error('Errore nel caricamento annunci:', err)
     } finally {
       setLoading(false)
     }
@@ -102,9 +104,13 @@ export default function Dashboard() {
           behavior: 'smooth',
         })
       }, 100)
-    } catch (error) {
-      console.error('Errore nel caricamento immobile da modificare:', error)
-      alert("Errore nel caricamento dell'annuncio da modificare")
+    } catch (err) {
+      console.error('Errore nel caricamento immobile da modificare:', err)
+
+      error(
+          'Errore nel caricamento',
+          "Impossibile caricare l'annuncio da modificare. Riprova."
+      )
     }
   }
 
@@ -123,9 +129,18 @@ export default function Dashboard() {
       if (selectedNoteId === id) {
         handleCloseNote()
       }
-    } catch (error) {
-      console.error("Errore nell'eliminazione:", error)
-      alert("Errore nell'eliminazione")
+
+      success(
+          'Annuncio eliminato',
+          "L'immobile è stato eliminato correttamente."
+      )
+    } catch (err) {
+      console.error("Errore nell'eliminazione:", err)
+
+      error(
+          "Errore nell'eliminazione",
+          "Impossibile eliminare l'annuncio. Riprova."
+      )
     }
   }
 
@@ -150,6 +165,8 @@ export default function Dashboard() {
   const handleFormSubmit = async (data, fotoFiles) => {
     setSaving(true)
 
+    const isModifica = Boolean(editingId)
+
     try {
       if (editingId) {
         await axiosInstance.put(`/immobili/${editingId}`, data)
@@ -171,9 +188,25 @@ export default function Dashboard() {
       setEditingId(null)
       setEditingData(null)
       setShowForm(false)
-    } catch (error) {
-      console.error('Errore nel salvataggio annuncio:', error)
-      alert("Errore nel salvataggio dell'annuncio o delle immagini")
+
+      if (isModifica) {
+        success(
+            'Annuncio aggiornato',
+            "Le modifiche all'immobile sono state salvate correttamente."
+        )
+      } else {
+        success(
+            'Annuncio creato',
+            "L'immobile è stato salvato correttamente."
+        )
+      }
+    } catch (err) {
+      console.error('Errore nel salvataggio annuncio:', err)
+
+      error(
+          'Errore nel salvataggio',
+          "Impossibile salvare l'annuncio o le immagini. Riprova."
+      )
     } finally {
       setSaving(false)
     }
@@ -211,9 +244,13 @@ export default function Dashboard() {
           })
         }
       }, 100)
-    } catch (error) {
-      console.error('Errore caricamento slide:', error)
-      alert('Errore nel caricamento degli immobili scelti per la slide')
+    } catch (err) {
+      console.error('Errore caricamento slide:', err)
+
+      error(
+          'Errore nel caricamento',
+          'Impossibile caricare gli immobili attualmente presenti nella slide.'
+      )
     }
   }
 
@@ -231,12 +268,18 @@ export default function Dashboard() {
         .filter(Boolean)
 
     if (codiciPuliti.length !== 3) {
-      alert('Inserisci esattamente 3 codici riferimento.')
+      error(
+          'Selezione incompleta',
+          'Inserisci esattamente 3 codici riferimento.'
+      )
       return
     }
 
     if (new Set(codiciPuliti).size !== 3) {
-      alert('I 3 codici riferimento devono essere diversi tra loro.')
+      error(
+          'Codici duplicati',
+          'I 3 codici riferimento devono essere diversi tra loro.'
+      )
       return
     }
 
@@ -247,13 +290,19 @@ export default function Dashboard() {
         codiciRiferimento: codiciPuliti,
       })
 
-      alert('Immobili della slide aggiornati correttamente')
+      success(
+          'Slide aggiornata',
+          'I 3 immobili selezionati sono ora impostati nella slide della Home.'
+      )
+
       setShowSlideManager(false)
       await fetchMyImmobili()
-    } catch (error) {
-      console.error('Errore salvataggio slide:', error)
-      alert(
-          'Errore: controlla che i 3 codici riferimento esistano e che gli immobili siano disponibili.'
+    } catch (err) {
+      console.error('Errore salvataggio slide:', err)
+
+      error(
+          'Errore nel salvataggio',
+          'Controlla che i 3 codici riferimento esistano e che gli immobili siano disponibili.'
       )
     } finally {
       setSlideSaving(false)
@@ -292,9 +341,13 @@ export default function Dashboard() {
           })
         }
       }, 100)
-    } catch (error) {
-      console.error('Errore caricamento note private:', error)
-      alert('Errore nel caricamento delle note private')
+    } catch (err) {
+      console.error('Errore caricamento note private:', err)
+
+      error(
+          'Errore nel caricamento',
+          'Impossibile caricare le note private di questo immobile.'
+      )
     } finally {
       setNoteLoading(false)
     }
@@ -312,10 +365,17 @@ export default function Dashboard() {
         notePrivate: noteText,
       })
 
-      alert('Note private salvate correttamente')
-    } catch (error) {
-      console.error('Errore salvataggio note private:', error)
-      alert('Errore nel salvataggio delle note private')
+      success(
+          'Note salvate',
+          'Le note private sono state aggiornate correttamente.'
+      )
+    } catch (err) {
+      console.error('Errore salvataggio note private:', err)
+
+      error(
+          'Errore nel salvataggio',
+          'Impossibile salvare le note private. Riprova.'
+      )
     } finally {
       setNoteSaving(false)
     }

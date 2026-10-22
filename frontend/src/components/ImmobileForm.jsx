@@ -7,6 +7,7 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import axiosInstance from '../api/axiosInstance'
+import { useToast } from '../context/ToastContext'
 
 const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'
@@ -100,6 +101,7 @@ const caratteristicheImmobile = [
 ]
 
 export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
+  const { success, error } = useToast()
   const [formData, setFormData] = useState(formVuoto)
   const [fotoFiles, setFotoFiles] = useState([])
   const [fotoEsistenti, setFotoEsistenti] = useState(initialData?.fotoUrl || [])
@@ -214,9 +216,18 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
       setFotoEsistenti((prev) =>
           prev.filter((foto) => foto !== fotoDaEliminare)
       )
-    } catch (error) {
-      console.error('Errore eliminazione foto:', error)
-      alert("Errore durante l'eliminazione della foto")
+
+      success(
+          'Foto eliminata',
+          "L'immagine è stata rimossa correttamente dall'annuncio."
+      )
+    } catch (err) {
+      console.error('Errore eliminazione foto:', err)
+
+      error(
+          "Errore nell'eliminazione",
+          'Impossibile eliminare la foto. Riprova.'
+      )
     } finally {
       setEliminazioneFoto(false)
     }
@@ -233,9 +244,13 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
       await axiosInstance.put(`/immobili/${initialData.id}/foto/ordine`, {
         fotoUrl: nuovoOrdine,
       })
-    } catch (error) {
-      console.error('Errore aggiornamento ordine foto:', error)
-      alert("Errore durante l'aggiornamento dell'ordine delle foto")
+    } catch (err) {
+      console.error('Errore aggiornamento ordine foto:', err)
+
+      error(
+          "Errore nell'ordinamento",
+          "Impossibile salvare il nuovo ordine delle foto. Riprova."
+      )
     } finally {
       setSalvataggioOrdine(false)
     }
@@ -280,7 +295,10 @@ export default function ImmobileForm({ onSubmit, initialData, onCancel }) {
     }
 
     if (!datiImmobile.tipo) {
-      alert('Seleziona almeno un tipo di immobile')
+      error(
+          'Tipo immobile mancante',
+          'Seleziona almeno un tipo di immobile prima di salvare.'
+      )
       return
     }
 

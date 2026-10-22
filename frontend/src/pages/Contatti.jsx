@@ -7,8 +7,11 @@ import {
 } from 'lucide-react'
 import PublicLayout from '../components/PublicLayout'
 import { siteConfig } from '../config/siteConfig.js'
+import { useToast } from '../context/ToastContext'
 
 export default function Contatti() {
+  const { error } = useToast()
+
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -30,22 +33,34 @@ export default function Contatti() {
     e.preventDefault()
 
     if (!formData.nome.trim()) {
-      alert('Inserisci il nome')
+      error(
+          'Nome mancante',
+          'Inserisci il tuo nome prima di continuare.'
+      )
       return
     }
 
     if (!formData.email.trim()) {
-      alert("Inserisci l'email")
+      error(
+          'Email mancante',
+          'Inserisci il tuo indirizzo email prima di continuare.'
+      )
       return
     }
 
     if (!formData.messaggio.trim()) {
-      alert('Inserisci il messaggio')
+      error(
+          'Messaggio mancante',
+          'Scrivi un messaggio prima di continuare.'
+      )
       return
     }
 
     if (!formData.privacy) {
-      alert('Devi accettare la privacy policy per inviare il messaggio')
+      error(
+          'Privacy policy',
+          'Devi accettare la privacy policy per inviare il messaggio.'
+      )
       return
     }
 
@@ -64,7 +79,7 @@ ${formData.messaggio}
         testo
     )}`
 
-    window.open(linkWhatsapp, '_blank')
+    window.open(linkWhatsapp, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -79,7 +94,9 @@ ${formData.messaggio}
             <div className="bg-white p-6 rounded-lg shadow">
               <Phone className="w-8 h-8 text-blue-600 mb-3" />
 
-              <h2 className="text-lg font-bold mb-2">Telefono</h2>
+              <h2 className="text-lg font-bold mb-2">
+                Telefono
+              </h2>
 
               <a
                   href={siteConfig.telefonoHref}
@@ -92,7 +109,9 @@ ${formData.messaggio}
             <div className="bg-white p-6 rounded-lg shadow">
               <Mail className="w-8 h-8 text-blue-600 mb-3" />
 
-              <h2 className="text-lg font-bold mb-2">Email</h2>
+              <h2 className="text-lg font-bold mb-2">
+                Email
+              </h2>
 
               <a
                   href={siteConfig.emailHref}
@@ -105,7 +124,9 @@ ${formData.messaggio}
             <div className="bg-white p-6 rounded-lg shadow">
               <MapPin className="w-8 h-8 text-blue-600 mb-3" />
 
-              <h2 className="text-lg font-bold mb-2">Ubicazione</h2>
+              <h2 className="text-lg font-bold mb-2">
+                Ubicazione
+              </h2>
 
               <a
                   href={siteConfig.mapsUrl}
@@ -195,9 +216,9 @@ ${formData.messaggio}
                     />
 
                     <span>
-                      Sì, inviando questo messaggio accetto la privacy policy del
-                      sito web sul trattamento dei miei dati personali.
-                    </span>
+                    Sì, inviando questo messaggio accetto la privacy policy del
+                    sito web sul trattamento dei miei dati personali.
+                  </span>
                   </label>
 
                   <button
